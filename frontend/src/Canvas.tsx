@@ -26,7 +26,6 @@ function Canvas() {
       0.1,
       1000
     );
-    camera.position.set(startCoords.x, startCoords.y, startCoords.z);
 
     // --- renderer setup ---
     const canvas: any = document.getElementById("3canvas");
@@ -40,6 +39,29 @@ function Canvas() {
 
     //! --- orbital controls ---
     const controls = new OrbitControls(camera, renderer.domElement);
+
+    controls.panSpeed = 0.75;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.075;
+
+    controls.keys = {
+      LEFT: "ArrowLeft",
+      UP: "ArrowUp",
+      RIGHT: "ArrowRight",
+      BOTTOM: "ArrowDown",
+    };
+
+    controls.listenToKeyEvents(window);
+    controls.keyPanSpeed = 10;
+
+    controls.mouseButtons = {
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.PAN,
+    };
+
+    //controls.update() must be called after any manual changes to the camera's transform
+    camera.position.set(startCoords.x, startCoords.y, startCoords.z);
+    controls.update();
 
     // --- create plane mesh ---
     const planeMesh = new THREE.Mesh(
@@ -94,21 +116,28 @@ function Canvas() {
       new THREE.MeshBasicMaterial({ color: 0x000 })
     );
 
-    window.addEventListener("mousedown", () => {
-      intersections.forEach((i: any) => {
-        if (i.object.name === "plane") {
-          // create dupe of voxel mesh to place in highlighted cell
-          // TODO multiple voxels can be placed inside one square creating unnecssary copies
-          const voxel = voxelMesh.clone();
-          voxel.position.set(cellMesh.position.x, 0.5, cellMesh.position.z);
-          scene.add(voxel);
-        }
-      });
+    window.addEventListener("mousedown", (event) => {
+      // ensure only left click
+      if (event.button === 0) {
+        intersections.forEach((i: any) => {
+          if (i.object.name === "plane") {
+            // create dupe of voxel mesh to place in highlighted cell
+            // TODO multiple voxels can be placed inside one square creating unnecssary copies
+            const voxel = voxelMesh.clone();
+            voxel.position.set(cellMesh.position.x, 0.5, cellMesh.position.z);
+            scene.add(voxel);
+            console.log("placed");
+          }
+        });
+      }
     });
 
     const animate = (t = 0) => {
-      renderer.render(scene, camera);
+      // required if controls.enableDamping or controls.autoRotate are set to true
+      controls.update();
+
       window.requestAnimationFrame(animate);
+      renderer.render(scene, camera);
     };
     animate();
   }, []);
