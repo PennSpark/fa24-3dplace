@@ -54,9 +54,13 @@ function Canvas() {
     controls.listenToKeyEvents(window);
     controls.keyPanSpeed = 10;
 
+    // TODO while this works for mouse inputs, this breaks for trackpad inputs - not able to move around bc left click disabled
+    // TODO find a working solution -- either have user manually have to select tool from toolbar which changes the function of left click for trackpad
+    // TODO one would be to place down block, other would be the pan/move tool
+    // TODO track has no
     controls.mouseButtons = {
+      LEFT: THREE.MOUSE.PAN,
       MIDDLE: THREE.MOUSE.DOLLY,
-      RIGHT: THREE.MOUSE.PAN,
     };
 
     //controls.update() must be called after any manual changes to the camera's transform
@@ -116,9 +120,19 @@ function Canvas() {
       new THREE.MeshBasicMaterial({ color: 0x000 })
     );
 
+    const existingVoxels: any[] = [];
+
     window.addEventListener("mousedown", (event) => {
-      // ensure only left click
-      if (event.button === 0) {
+      // check if a voxel already exists at current position
+      const voxelExists: boolean = existingVoxels.find((v) => {
+        return (
+          v.position.x === cellMesh.position.x &&
+          v.position.z === cellMesh.position.z
+        );
+      });
+
+      // ensure only left click and voxel doesn't already exist at current loc
+      if (event.button === 0 && !voxelExists) {
         intersections.forEach((i: any) => {
           if (i.object.name === "plane") {
             // create dupe of voxel mesh to place in highlighted cell
@@ -126,9 +140,11 @@ function Canvas() {
             const voxel = voxelMesh.clone();
             voxel.position.set(cellMesh.position.x, 0.5, cellMesh.position.z);
             scene.add(voxel);
-            console.log("placed");
+            existingVoxels.push(voxel);
           }
         });
+
+        console.log(scene.children.length);
       }
     });
 
