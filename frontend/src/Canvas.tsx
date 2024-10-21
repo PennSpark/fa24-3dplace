@@ -57,7 +57,7 @@ function Canvas() {
     // TODO while this works for mouse inputs, this breaks for trackpad inputs - not able to move around bc left click disabled
     // TODO find a working solution -- either have user manually have to select tool from toolbar which changes the function of left click for trackpad
     // TODO one would be to place down block, other would be the pan/move tool
-    // TODO track has no
+    // TODO trackpad has no ability to do right click
     controls.mouseButtons = {
       LEFT: THREE.MOUSE.PAN,
       MIDDLE: THREE.MOUSE.DOLLY,
@@ -115,10 +115,12 @@ function Canvas() {
     });
 
     // --- voxel block mesh ---
+    // TODO allow users to pick a color to change color of block
     const voxelMesh = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
       new THREE.MeshBasicMaterial({ color: 0x000 })
     );
+    voxelMesh.name = "voxel";
 
     const existingVoxels: any[] = [];
 
@@ -127,6 +129,7 @@ function Canvas() {
       const voxelExists: boolean = existingVoxels.find((v) => {
         return (
           v.position.x === cellMesh.position.x &&
+          v.position.y === cellMesh.position.y &&
           v.position.z === cellMesh.position.z
         );
       });
@@ -136,7 +139,6 @@ function Canvas() {
         intersections.forEach((i: any) => {
           if (i.object.name === "plane") {
             // create dupe of voxel mesh to place in highlighted cell
-            // TODO multiple voxels can be placed inside one square creating unnecssary copies
             const voxel = voxelMesh.clone();
             voxel.position.set(cellMesh.position.x, 0.5, cellMesh.position.z);
             scene.add(voxel);
