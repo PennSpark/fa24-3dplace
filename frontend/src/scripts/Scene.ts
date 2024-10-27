@@ -1,88 +1,121 @@
 import * as THREE from "three";
-import { dimensions } from "../helpers/Constants";
+import { dimensions, gridCellSize, gridSideLength } from "../helpers/Constants";
 
 export function createScene(
   scene: THREE.Scene,
-  camera: THREE.PerspectiveCamera
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.Renderer
 ) {
-  // --- create plane mesh ---
+  // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(dimensions.l, dimensions.w),
-    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, visible: false })
+    new THREE.MeshBasicMaterial({ side: THREE.FrontSide, visible: false })
   );
+
   // plane mesh instantiates vertically so we rotate it 90 deg
   planeMesh.rotateX(-Math.PI / 2);
   planeMesh.name = "plane";
   scene.add(planeMesh);
 
-  // --- create grid overlay on plane ---
-  const grid = new THREE.GridHelper(dimensions.l, dimensions.w);
+  // create grid overlay on plane
+  const grid = new THREE.GridHelper(dimensions.l, gridSideLength);
   scene.add(grid);
 
-  // ---- create selected grid cell mesh ----
-  const cellMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1),
-    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 0xff6961 })
+  // --- voxel block mesh ---
+  const voxelGeometry = new THREE.BoxGeometry(
+    gridCellSize,
+    gridCellSize,
+    gridCellSize
   );
-  cellMesh.rotateX(-Math.PI / 2);
-  // cell mesh starts at origin so align w/ grid mesh by providing offset, half of grid cell length/width
-  cellMesh.position.set(0.5, 0, 0.5);
-  scene.add(cellMesh);
+  const voxelBaseMat = new THREE.MeshBasicMaterial({ color: 0x000 });
+  const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+  voxelMesh.name = "voxel";
+
+  // --- voxel highlight mesh ---
+  const voxelPreviewMat = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    opacity: 0.5,
+    transparent: true,
+  });
+  const voxelPreviewMesh = new THREE.Mesh(voxelGeometry, voxelPreviewMat);
+  voxelPreviewMesh.name = "voxelPreview";
+  scene.add(voxelPreviewMesh);
+
+  // keep updated list of all rendered objects
+  const objects: any[] = [];
+  objects.push(planeMesh);
 
   // --- mouse raycast ---
   const mousePos = new THREE.Vector2();
-  const raycast = new THREE.Raycaster();
-  let intersections: any;
+  const raycaster = new THREE.Raycaster();
 
-  window.addEventListener("mousemove", (event) => {
-    mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycast.setFromCamera(mousePos, camera);
-    intersections = raycast.intersectObjects(scene.children);
-    intersections.forEach((i: any) => {
-      if (i.object.name === "plane") {
-        // calculate position of highlighted cell
-        //TODO add explanation for math
-        const cellPos = new THREE.Vector3()
-          .copy(i.point)
-          .floor()
-          .addScalar(0.5);
-        cellMesh.position.set(cellPos.x, 0, cellPos.z);
-      }
-    });
-  });
+  // setup input/window listeners
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("resize", onWindowResize);
 
-  // --- voxel block mesh ---
-  // TODO allow users to pick a color to change color of block
-  const voxelMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({ color: 0x000 })
-  );
-  voxelMesh.name = "voxel";
+  function onMouseMove(event: { clientX: number; clientY: number }) {
+    mousePos.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+    );
 
-  const existingVoxels: any[] = [];
+    raycaster.setFromCamera(mousePos, camera);
 
-  window.addEventListener("mousedown", (event) => {
-    // check if a voxel already exists at current position
-    const voxelExists: boolean = existingVoxels.find((v) => {
-      return (
-        v.position.x === cellMesh.position.x &&
-        v.position.y === cellMesh.position.y &&
-        v.position.z === cellMesh.position.z
-      );
-    });
+    const intersects = raycaster.intersectObjects(objects, false);
 
-    // ensure only left click and voxel doesn't already exist at current loc
-    if (event.button === 0 && !voxelExists) {
-      intersections.forEach((i: any) => {
-        if (i.object.name === "plane") {
-          // create dupe of voxel mesh to place in highlighted cell
-          const voxel = voxelMesh.clone();
-          voxel.position.set(cellMesh.position.x, 0.5, cellMesh.position.z);
-          scene.add(voxel);
-          existingVoxels.push(voxel);
-        }
-      });
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+
+      if (intersect.face)
+        voxelPreviewMesh.position
+          .copy(intersect.point)
+          .add(intersect.face.normal);
+      voxelPreviewMesh.position
+        .divideScalar(gridCellSize)
+        .floor()
+        .multiplyScalar(gridCellSize)
+        .addScalar(gridCellSize / 2);
     }
-  });
+
+    // ensure the y-coord is above the plane
+    voxelPreviewMesh.position.y = Math.max(
+      voxelPreviewMesh.position.y,
+      gridCellSize / 2
+    );
+  }
+
+  function onMouseDown(event: { clientX: number; clientY: number }) {
+    mousePos.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      -(event.clientY / window.innerHeight) * 2 + 1
+    );
+
+    raycaster.setFromCamera(mousePos, camera);
+
+    const intersects = raycaster.intersectObjects(objects, false);
+
+    if (intersects.length > 0) {
+      const intersect = intersects[0];
+      const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+      if (intersect.face)
+        voxel.position.copy(intersect.point).add(intersect.face.normal);
+      voxel.position
+        .divideScalar(gridCellSize)
+        .floor()
+        .multiplyScalar(gridCellSize)
+        .addScalar(gridCellSize / 2);
+
+      // ensure the y-coord is above the plane
+      voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
+      scene.add(voxel);
+      objects.push(voxel);
+    }
+  }
+
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight; // update camera aspect ratio
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight); // update renderer size
+  }
 }
