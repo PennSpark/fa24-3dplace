@@ -11,7 +11,7 @@ function Canvas() {
       50,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      10000
     );
     const canvas: any = document.getElementById("3canvas");
     const renderer = new THREE.WebGLRenderer({
@@ -26,13 +26,18 @@ function Canvas() {
     renderer.setSize(window.innerWidth, innerHeight);
 
     const controls = createControls(camera, renderer); // setup controls
-    createScene(scene, camera); // render the scene
+    createScene(scene, camera, renderer); // render the scene
 
     const animate = (t = 0) => {
       // required if controls.enableDamping or controls.autoRotate are set to true
       controls.update();
       window.requestAnimationFrame(animate);
       renderer.render(scene, camera);
+
+      console.log(
+        camera.position.x + "," + camera.position.y,
+        +"," + camera.position.z
+      );
     };
     animate();
   }, []);
