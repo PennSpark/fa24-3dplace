@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
+import { ViewportGizmo } from "three-viewport-gizmo";
+import { viewportGizmoOptions } from "./helpers/Constants.js";
 
 function Canvas() {
   useEffect(() => {
@@ -28,16 +30,29 @@ function Canvas() {
     const controls = createControls(camera, renderer); // setup controls
     createScene(scene, camera, renderer); // render the scene
 
+    // setup viewport gizmo
+    const viewportGizmo = new ViewportGizmo(
+      camera,
+      renderer,
+      viewportGizmoOptions
+    );
+    viewportGizmo.target = controls.target;
+    // listenres for viewport gizmo
+    viewportGizmo.addEventListener("start", () => {
+      controls.enabled = false;
+      console.log("init");
+    });
+    viewportGizmo.addEventListener("end", () => (controls.enabled = true));
+    controls.addEventListener("change", () => {
+      viewportGizmo.update();
+    });
+
     const animate = (t = 0) => {
-      // required if controls.enableDamping or controls.autoRotate are set to true
-      controls.update();
       window.requestAnimationFrame(animate);
       renderer.render(scene, camera);
+      viewportGizmo.render();
 
-      console.log(
-        camera.position.x + "," + camera.position.y,
-        +"," + camera.position.z
-      );
+      if (controls.enabled) controls.update();
     };
     animate();
   }, []);
