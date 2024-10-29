@@ -691,14 +691,11 @@ class OrbitControls extends Controls {
   }
 
   _handleMouseWheel(event) {
-    this._updateZoomParameters(event.clientX, event.clientY);
-
-    if (event.deltaY < 0) {
-      this._dollyIn(this._getZoomScale(event.deltaY));
-    } else if (event.deltaY > 0) {
-      this._dollyOut(this._getZoomScale(event.deltaY));
-    }
-
+    const x = event.deltaX * 0.1;
+    const y = event.deltaY * 0.1; 
+    this._panStart.set(event.pageX, event.pageY);
+  
+    this._pan(x, y);
     this.update();
   }
 
@@ -706,6 +703,8 @@ class OrbitControls extends Controls {
     let needsUpdate = false;
 
     switch (event.code) {
+      // case this.keys.W:
+      case "KeyW":
       case this.keys.UP:
         if (event.ctrlKey || event.metaKey || event.shiftKey) {
           this._rotateUp(
@@ -717,7 +716,8 @@ class OrbitControls extends Controls {
 
         needsUpdate = true;
         break;
-
+      
+      case "KeyS":
       case this.keys.BOTTOM:
         if (event.ctrlKey || event.metaKey || event.shiftKey) {
           this._rotateUp(
@@ -729,7 +729,8 @@ class OrbitControls extends Controls {
 
         needsUpdate = true;
         break;
-
+      
+      case "KeyA":
       case this.keys.LEFT:
         if (event.ctrlKey || event.metaKey || event.shiftKey) {
           this._rotateLeft(
@@ -742,6 +743,7 @@ class OrbitControls extends Controls {
         needsUpdate = true;
         break;
 
+      case "KeyD":
       case this.keys.RIGHT:
         if (event.ctrlKey || event.metaKey || event.shiftKey) {
           this._rotateLeft(
@@ -944,12 +946,14 @@ class OrbitControls extends Controls {
 
   _customWheelEvent(event) {
     const mode = event.deltaMode;
+    console.log(event)
 
     // minimal wheel event altered to meet delta-zoom demand
     const newEvent = {
       clientX: event.clientX,
       clientY: event.clientY,
       deltaY: event.deltaY,
+      deltaX: event.deltaX,
     };
 
     switch (mode) {
@@ -1111,6 +1115,11 @@ function onMouseDown(event) {
 }
 
 function onMouseMove(event) {
+  if (event.buttons == 2) {
+    if (this.enableRotate === false) return; 
+    this._handleMouseMoveRotate(event);
+  }
+
   switch (this.state) {
     case _STATE.ROTATE:
       if (this.enableRotate === false) return;
