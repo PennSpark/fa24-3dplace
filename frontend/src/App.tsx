@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./App.css";
 import Canvas from "./Canvas";
 import ColorPalette from "./components/ColorPalette";
@@ -29,7 +30,7 @@ function App() {
   }
   return (
     <>
-      <ColorPalette colors={usedColors} setColor={setColor} />
+      {/* <ColorPalette colors={usedColors} setColor={setColor} /> */}
       <Toolbar />
       <Canvas />
     </>
