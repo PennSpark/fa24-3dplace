@@ -1,11 +1,35 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
 import { ViewportGizmo } from "three-viewport-gizmo";
 import { viewportGizmoOptions } from "./helpers/Constants.js";
+import ColorPalette from "./components/ColorPalette";
 
 function Canvas() {
+  const usedColors: string[] = [
+    "#FF1515",
+    "#FF8000",
+    "#FFFF33",
+    "#CCFF99",
+    "#00FF00",
+    "#33FFFF",
+    "#99CCFF",
+    "#0000FF",
+    "#CC00CC",
+    "#CC99FF",
+    "#FF33FF",
+    "#FF007F",
+    "#994C00",
+    "#000000",
+    "#FFFFFF",
+  ];
+
+  const [currColor, setCurrColor] = useState<string>("#000000");
+
+  function setColor(arg: string) {
+    setCurrColor(arg);
+  }
   useEffect(() => {
     // scene, camera, renderer initalization
     const scene = new THREE.Scene();
@@ -28,7 +52,7 @@ function Canvas() {
     renderer.setSize(window.innerWidth, innerHeight);
 
     const controls = createControls(camera, renderer); // setup controls
-    createScene(scene, camera, renderer); // render the scene
+    createScene(scene, camera, renderer, currColor); // render the scene
 
     // setup viewport gizmo
     const viewportGizmo = new ViewportGizmo(
@@ -55,10 +79,11 @@ function Canvas() {
       if (controls.enabled) controls.update();
     };
     animate();
-  }, []);
-
+  }, [currColor]);
+    
   return (
     <>
+      <ColorPalette colors={usedColors} setColor={setColor} />
       <canvas id="3canvas" />
     </>
   );

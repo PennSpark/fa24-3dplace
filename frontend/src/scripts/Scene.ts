@@ -4,8 +4,10 @@ import { dimensions, gridCellSize, gridSideLength } from "../helpers/Constants";
 export function createScene(
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
-  renderer: THREE.Renderer
+  renderer: THREE.Renderer,
+  currColor: String
 ) {
+  console.log(currColor);
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(dimensions.l, dimensions.w),
@@ -27,7 +29,8 @@ export function createScene(
     gridCellSize,
     gridCellSize
   );
-  const voxelBaseMat = new THREE.MeshBasicMaterial({ color: 0x000 });
+  const colorDecimal = parseInt(currColor.replace("#", ""), 16);
+  const voxelBaseMat = new THREE.MeshBasicMaterial({ color: colorDecimal });
   const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
   voxelMesh.name = "voxel";
 
@@ -97,6 +100,7 @@ export function createScene(
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
+      
       const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
       if (intersect.face)
         voxel.position.copy(intersect.point).add(intersect.face.normal);
