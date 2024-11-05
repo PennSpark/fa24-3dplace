@@ -44,6 +44,23 @@ export function createScene(
   const objects: any[] = [];
   objects.push(planeMesh);
 
+  // LIGHTING!!! need this to show results of mesh material
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft ambient light
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // strong directional light
+  directionalLight.position.set(50, 50, 50);
+  directionalLight.castShadow = true;
+  scene.add(directionalLight);
+
+  // shows directional light helper
+  const lightHelper = new THREE.DirectionalLightHelper(
+    directionalLight,
+    1,
+    0xf00000
+  );
+  scene.add(lightHelper);
+
   // --- mouse raycast ---
   const mousePos = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
@@ -99,7 +116,10 @@ export function createScene(
 
       // on click, create new voxel using ref.current and new mesh material
       const colorDecimal = parseInt(currColorRef.current.replace("#", ""), 16);
-      const voxelBaseMat = new THREE.MeshBasicMaterial({ color: colorDecimal });
+      // right now matcap makes it so the lighting system doesnt affect material
+      const voxelBaseMat = new THREE.MeshMatcapMaterial({
+        color: colorDecimal,
+      });
       const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
       voxelMesh.name = "voxel";
 
