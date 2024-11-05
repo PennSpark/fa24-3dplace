@@ -6,7 +6,8 @@ export function createScene(
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   renderer: THREE.Renderer,
-  currColorRef: MutableRefObject<string>
+  currColorRef: MutableRefObject<string>,
+  isMouseOverUIRef: MutableRefObject<boolean>
 ) {
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
@@ -101,42 +102,52 @@ export function createScene(
     );
   }
 
-  function onMouseDown(event: { clientX: number; clientY: number }) {
-    mousePos.set(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1
-    );
+  function onMouseDown(event: {
+    clientX: number;
+    clientY: number;
+    button: number;
+  }) {
+    // only on left click place down block, and if mouse is not on UIelement
+    if (event.button == 0 && !isMouseOverUIRef.current) {
+      mousePos.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      );
 
-    raycaster.setFromCamera(mousePos, camera);
+      raycaster.setFromCamera(mousePos, camera);
 
-    const intersects = raycaster.intersectObjects(objects, false);
+      const intersects = raycaster.intersectObjects(objects, false);
 
-    if (intersects.length > 0) {
-      const intersect = intersects[0];
+      if (intersects.length > 0) {
+        const intersect = intersects[0];
 
-      // on click, create new voxel using ref.current and new mesh material
-      const colorDecimal = parseInt(currColorRef.current.replace("#", ""), 16);
-      // right now matcap makes it so the lighting system doesnt affect material
-      const voxelBaseMat = new THREE.MeshMatcapMaterial({
-        color: colorDecimal,
-      });
-      const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
-      voxelMesh.name = "voxel";
+        // on click, create new voxel using ref.current and new mesh material
+        const colorDecimal = parseInt(
+          currColorRef.current.replace("#", ""),
+          16
+        );
+        // right now matcap makes it so the lighting system doesnt affect material
+        const voxelBaseMat = new THREE.MeshMatcapMaterial({
+          color: colorDecimal,
+        });
+        const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+        voxelMesh.name = "voxel";
 
-      const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+        const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
 
-      if (intersect.face)
-        voxel.position.copy(intersect.point).add(intersect.face.normal);
-      voxel.position
-        .divideScalar(gridCellSize)
-        .floor()
-        .multiplyScalar(gridCellSize)
-        .addScalar(gridCellSize / 2);
+        if (intersect.face)
+          voxel.position.copy(intersect.point).add(intersect.face.normal);
+        voxel.position
+          .divideScalar(gridCellSize)
+          .floor()
+          .multiplyScalar(gridCellSize)
+          .addScalar(gridCellSize / 2);
 
-      // ensure the y-coord is above the plane
-      voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
-      scene.add(voxel);
-      objects.push(voxel);
+        // ensure the y-coord is above the plane
+        voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
+        scene.add(voxel);
+        objects.push(voxel);
+      }
     }
   }
 

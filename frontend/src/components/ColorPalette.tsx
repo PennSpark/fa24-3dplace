@@ -22,7 +22,7 @@ function ColorPalette() {
   const { setCurrColor } = useStateController();
 
   return (
-    <div className="color-pallete">
+    <div className="ui-element color-pallete">
       {colors.map((color) => {
         return (
           <div

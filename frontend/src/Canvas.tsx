@@ -7,10 +7,17 @@ import { viewportGizmoOptions } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
 import Toolbar from "./components/Toolbar";
 import { useStateController } from "./helpers/StateProvider.js";
+import { handleUI } from "./scripts/UIHandler.js";
 
 function Canvas() {
   // access state variables through global provider
-  const { currColorRef, controls, setControls } = useStateController();
+  const {
+    currColorRef,
+    controls,
+    setControls,
+    isMouseOverUIRef,
+    setIsMouseOverUI,
+  } = useStateController();
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,7 +46,7 @@ function Canvas() {
     setControls(controls);
     controls.saveState();
 
-    createScene(scene, camera, renderer, currColorRef); // render the scene
+    createScene(scene, camera, renderer, currColorRef, isMouseOverUIRef); // render the scene
 
     // setup viewport gizmo
     const viewportGizmo = new ViewportGizmo(
@@ -70,6 +77,13 @@ function Canvas() {
       controls.dispose();
     };
   }, []);
+
+  // call handleUI after the components are mounted
+  // lowk this is implemented hella bad but
+  // useRef might be better since it might be readding listeners
+  useEffect(() => {
+    handleUI(setIsMouseOverUI);
+  }, [setIsMouseOverUI]); // re-run when setter changes
 
   return (
     <>
