@@ -5,6 +5,8 @@ import { createScene } from "./scripts/Scene.js";
 import { ViewportGizmo } from "three-viewport-gizmo";
 import { viewportGizmoOptions } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
+import Toolbar from './components/Toolbar';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 function Canvas() {
   const usedColors: string[] = [
@@ -26,6 +28,8 @@ function Canvas() {
   ];
 
   const [currColor, setCurrColor] = useState<string>("#000000");
+  const [controls, setControls] = useState<OrbitControls | null>(null);
+
 
   function setColor(arg: string) {
     setCurrColor(arg);
@@ -51,7 +55,11 @@ function Canvas() {
     scene.background = new THREE.Color(0xffffff);
     renderer.setSize(window.innerWidth, innerHeight);
 
-    const controls = createControls(camera, renderer); // setup controls
+    const controls = createControls(camera, renderer);
+    setControls(controls);
+    controls.saveState();
+
+    // const controls = createControls(camera, renderer); // setup controls
     createScene(scene, camera, renderer, currColor); // render the scene
 
     // setup viewport gizmo
@@ -71,7 +79,7 @@ function Canvas() {
       viewportGizmo.update();
     });
 
-    const animate = (t = 0) => {
+    const animate = () => {
       window.requestAnimationFrame(animate);
       renderer.render(scene, camera);
       viewportGizmo.render();
@@ -79,10 +87,15 @@ function Canvas() {
       if (controls.enabled) controls.update();
     };
     animate();
+
+    return () => {
+      controls.dispose();
+    };
   }, [currColor]);
-    
+
   return (
     <>
+      {controls && <Toolbar controls={controls} />}
       <ColorPalette colors={usedColors} setColor={setColor} />
       <canvas id="3canvas" />
     </>
