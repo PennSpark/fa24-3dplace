@@ -16,7 +16,7 @@ export const startCoords = {
 
 export const viewportGizmoOptions = {
   placement: "bottom-left",
-  size: 200,
+  size: 150,
   lineWidth: 3,
   offset: {
     top: 0,
