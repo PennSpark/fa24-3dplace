@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import { dimensions, gridCellSize, gridSideLength } from "../helpers/Constants";
+import { MutableRefObject } from "react";
 
 export function createScene(
   scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   renderer: THREE.Renderer,
-  currColor: String
+  currColorRef: MutableRefObject<string>
 ) {
-  console.log(currColor);
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(dimensions.l, dimensions.w),
@@ -29,10 +29,6 @@ export function createScene(
     gridCellSize,
     gridCellSize
   );
-  const colorDecimal = parseInt(currColor.replace("#", ""), 16);
-  const voxelBaseMat = new THREE.MeshBasicMaterial({ color: colorDecimal });
-  const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
-  voxelMesh.name = "voxel";
 
   // --- voxel highlight mesh ---
   const voxelPreviewMat = new THREE.MeshBasicMaterial({
@@ -100,8 +96,15 @@ export function createScene(
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      
+
+      // on click, create new voxel using ref.current and new mesh material
+      const colorDecimal = parseInt(currColorRef.current.replace("#", ""), 16);
+      const voxelBaseMat = new THREE.MeshBasicMaterial({ color: colorDecimal });
+      const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+      voxelMesh.name = "voxel";
+
       const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+
       if (intersect.face)
         voxel.position.copy(intersect.point).add(intersect.face.normal);
       voxel.position

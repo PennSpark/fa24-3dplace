@@ -1,11 +1,13 @@
 import "./App.css";
 import Canvas from "./Canvas";
+import { StateControllerProvider } from "./helpers/StateProvider";
 
 function App() {
-  
   return (
     <>
-      <Canvas />
+      <StateControllerProvider>
+        <Canvas />
+      </StateControllerProvider>
     </>
   );
 }

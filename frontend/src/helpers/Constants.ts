@@ -16,31 +16,31 @@ export const startCoords = {
 
 export const viewportGizmoOptions = {
   placement: "bottom-left",
-  size: 150,
-  lineWidth: 5,
+  size: 200,
+  lineWidth: 3,
   offset: {
     top: 0,
-    left: 15,
+    left: 20,
     right: 0,
-    bottom: 15,
+    bottom: 10,
   },
   font: {
     family: "helvetica",
     weight: 900,
   },
-  resolution: 256,
+  resolution: 64,
   backgroundSphere: {
-    enabled: false,
+    enabled: true,
     color: 0,
-    opacity: 0.25,
+    opacity: 0.2,
   },
   x: {
     text: "X",
     drawLine: true,
     border: false,
     colors: {
-      main: "#ff7f9b",
-      hover: "#ff0000",
+      main: "#FF2E2E",
+      hover: "#FFFFFF",
       text: "#000000",
       hoverText: "#000000",
     },
@@ -50,8 +50,8 @@ export const viewportGizmoOptions = {
     drawLine: true,
     border: false,
     colors: {
-      main: "#c2ee00",
-      hover: "#00ff00",
+      main: "#54F000",
+      hover: "#FFFFFF",
       text: "#000000",
       hoverText: "#000000",
     },
@@ -61,10 +61,10 @@ export const viewportGizmoOptions = {
     drawLine: true,
     border: false,
     colors: {
-      main: "#73c5ff",
-      hover: "#0000ff",
+      main: "#6181FF",
+      hover: "#FFFFFF",
       text: "#000000",
-      hoverText: "#ffffff",
+      hoverText: "#000000",
     },
   },
   nx: {
@@ -72,8 +72,8 @@ export const viewportGizmoOptions = {
     drawLine: false,
     border: false,
     colors: {
-      main: "#ff7f9b",
-      hover: "#ffffff",
+      main: "#EE1B49",
+      hover: "#FFFFFF",
       text: "#000000",
       hoverText: "#000000",
     },
@@ -83,8 +83,8 @@ export const viewportGizmoOptions = {
     drawLine: false,
     border: false,
     colors: {
-      main: "#c2ee00",
-      hover: "#ffffff",
+      main: "#48F000",
+      hover: "#FFFFFF",
       text: "#000000",
       hoverText: "#000000",
     },
@@ -94,8 +94,8 @@ export const viewportGizmoOptions = {
     drawLine: false,
     border: false,
     colors: {
-      main: "#73c5ff",
-      hover: "#ffffff",
+      main: "#5451FB",
+      hover: "#FFFFFF",
       text: "#000000",
       hoverText: "#000000",
     },
