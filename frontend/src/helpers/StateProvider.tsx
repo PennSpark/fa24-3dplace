@@ -14,12 +14,9 @@ interface StateControllerContextType {
   setCurrColor: (color: string) => void;
   controls: any;
   setControls: (controls: any) => void;
-<<<<<<< Updated upstream
   isMouseOverUIRef: MutableRefObject<boolean>;
   setIsMouseOverUI: (flag: boolean) => void;
-=======
   isBuildModeRef: MutableRefObject<boolean>;
->>>>>>> Stashed changes
 }
 
 const StateControllerContext = createContext<
@@ -40,12 +37,12 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
   // camera controls --> can be defined here, be adjusted in toolbar.tsx
   const [controls, setControls] = useState<OrbitControls | null>(null);
 
-<<<<<<< Updated upstream
   // flag to check if mouse is over UI element, if true then disable interaction w/ canvas
   const isMouseOverUIRef = useRef<boolean>(false);
   const setIsMouseOverUI = (flag: boolean) => {
     isMouseOverUIRef.current = flag; // update the ref value
   };
+  const isBuildModeRef = useRef(true);
 
   return (
     <StateControllerContext.Provider
@@ -56,15 +53,8 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
         setControls,
         isMouseOverUIRef,
         setIsMouseOverUI,
+        isBuildModeRef
       }}
-=======
-  // build mode as true
-  const isBuildModeRef = useRef(true);
-
-  return (
-    <StateControllerContext.Provider
-      value={{ currColorRef, setCurrColor, controls, setControls, isBuildModeRef }}
->>>>>>> Stashed changes
     >
       {children}
     </StateControllerContext.Provider>

@@ -7,11 +7,8 @@ export function createScene(
   camera: THREE.PerspectiveCamera,
   renderer: THREE.Renderer,
   currColorRef: MutableRefObject<string>,
-<<<<<<< Updated upstream
-  isMouseOverUIRef: MutableRefObject<boolean>
-=======
+  isMouseOverUIRef: MutableRefObject<boolean>,
   isBuildModeRef: MutableRefObject<boolean>
->>>>>>> Stashed changes
 ) {
 
   // create 2D plane mesh
@@ -109,19 +106,13 @@ export function createScene(
     }
   }
 
-<<<<<<< Updated upstream
   function onMouseDown(event: {
     clientX: number;
     clientY: number;
     button: number;
   }) {
     // only on left click place down block, and if mouse is not on UIelement
-    if (event.button == 0 && !isMouseOverUIRef.current) {
-=======
-  function onMouseDown(event: { clientX: number; clientY: number }) {
-    // only add if its in build mode, and comfirmed
-    if (isBuildModeRef.current) {
->>>>>>> Stashed changes
+    if (event.button == 0 && !isMouseOverUIRef.current && isBuildModeRef.current) {
       mousePos.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
@@ -131,22 +122,14 @@ export function createScene(
 
       const intersects = raycaster.intersectObjects(objects, false);
 
-<<<<<<< Updated upstream
-=======
-      
->>>>>>> Stashed changes
       if (intersects.length > 0) {
         const intersect = intersects[0];
 
         // on click, create new voxel using ref.current and new mesh material
-<<<<<<< Updated upstream
         const colorDecimal = parseInt(
           currColorRef.current.replace("#", ""),
           16
         );
-=======
-        const colorDecimal = parseInt(currColorRef.current.replace("#", ""), 16);
->>>>>>> Stashed changes
         // right now matcap makes it so the lighting system doesnt affect material
         const voxelBaseMat = new THREE.MeshMatcapMaterial({
           color: colorDecimal,
@@ -166,10 +149,6 @@ export function createScene(
 
         // ensure the y-coord is above the plane
         voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
-<<<<<<< Updated upstream
-=======
-      
->>>>>>> Stashed changes
         scene.add(voxel);
         objects.push(voxel);
       }
