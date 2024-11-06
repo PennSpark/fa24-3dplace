@@ -10,7 +10,6 @@ export function createScene(
   isMouseOverUIRef: MutableRefObject<boolean>,
   isBuildModeRef: MutableRefObject<boolean>
 ) {
-
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(dimensions.l, dimensions.w),
@@ -112,7 +111,11 @@ export function createScene(
     button: number;
   }) {
     // only on left click place down block, and if mouse is not on UIelement
-    if (event.button == 0 && !isMouseOverUIRef.current && isBuildModeRef.current) {
+    if (
+      event.button == 0 &&
+      !isMouseOverUIRef.current &&
+      isBuildModeRef.current
+    ) {
       mousePos.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1

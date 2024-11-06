@@ -17,7 +17,7 @@ function Canvas() {
     setControls,
     isMouseOverUIRef,
     setIsMouseOverUI,
-    isBuildModeRef
+    isBuildModeRef,
   } = useStateController();
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
@@ -47,7 +47,14 @@ function Canvas() {
     setControls(controls);
     controls.saveState();
 
-    createScene(scene, camera, renderer, currColorRef, isMouseOverUIRef, isBuildModeRef); // render the scene
+    createScene(
+      scene,
+      camera,
+      renderer,
+      currColorRef,
+      isMouseOverUIRef,
+      isBuildModeRef
+    ); // render the scene
 
     // setup viewport gizmo
     const viewportGizmo = new ViewportGizmo(

@@ -2,21 +2,25 @@ import { useStateController } from "../helpers/StateProvider";
 
 function ColorPalette() {
   const colors: string[] = [
-    "#FF1515",
-    "#FF8000",
-    "#FFFF33",
-    "#CCFF99",
-    "#00FF00",
-    "#33FFFF",
-    "#99CCFF",
-    "#0000FF",
-    "#CC00CC",
-    "#CC99FF",
-    "#FF33FF",
-    "#FF007F",
-    "#994C00",
+    "#EB1800",
+    "#FF7105",
+    "#FEE400",
+    "#BFEF45",
+    "#00CC00",
+    "#166F00",
+    "#241FD3",
+    "#00B2FF",
+    "#81F3ED",
+    "#7900C3",
+    "#F032E6",
+    "#FFA4D1",
+    "#D4852A",
+    "#63300F",
     "#000000",
+    "#888888",
+    "#E0E0E0",
     "#FFFFFF",
+    "transparent",
   ];
 
   const { setCurrColor } = useStateController();
@@ -33,10 +37,6 @@ function ColorPalette() {
             }}
             style={{
               backgroundColor: color,
-              padding: "10px",
-              margin: "5px",
-              cursor: "pointer",
-              caretColor: "transparent",
             }}
           ></div>
         );

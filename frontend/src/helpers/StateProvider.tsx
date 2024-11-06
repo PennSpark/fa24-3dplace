@@ -53,7 +53,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
         setControls,
         isMouseOverUIRef,
         setIsMouseOverUI,
-        isBuildModeRef
+        isBuildModeRef,
       }}
     >
       {children}

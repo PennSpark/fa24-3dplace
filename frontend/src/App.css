@@ -41,7 +41,6 @@
 }
 
 .color-pallete {
-  height: 50px;
   width: 50%;
   background-color: #fbfbfb;
   border-radius: 15px;
@@ -58,10 +57,13 @@
 }
 
 .color-option {
-  width: 28px;
-  height: 28px;
-  border: 0.2px solid rgb(175, 175, 175);
-  border-radius: 5px;
+  width: 35px;
+  height: 35px;
+  margin: 16px 0;
+  cursor: pointer;
+  caret-color: transparent;
+  padding: 10px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
 }
 
 .toolbar {
