@@ -48,8 +48,8 @@ function Canvas() {
     const controls = createControls(camera, renderer);
     setControls(controls);
     controls.saveState();
-    // start with move mode
-    isBuildModeRef.current = false;
+    // start with build mode
+    controls.enableRotate = false;
 
     createScene(
       sceneRef.current,
