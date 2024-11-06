@@ -2,19 +2,13 @@ import {
   FaHome,
   FaSearchPlus,
   FaSearchMinus,
-  FaArrowsAlt,
-  FaUndo,
 } from "react-icons/fa";
-import { useState } from "react";
 import { useStateController } from "../helpers/StateProvider";
 
 function Toolbar() {
   // toolbar button functionality
   const MAX_ZOOM_IN_STEPS = 50;
   let zoomSteps = 0;
-
-  const [isPanning, setIsPanning] = useState(false);
-  const [isRotating, setIsRotating] = useState(true);
   const { controls } = useStateController();
 
   const handleResetCamera = () => {

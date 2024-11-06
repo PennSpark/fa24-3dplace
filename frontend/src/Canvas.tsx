@@ -7,7 +7,7 @@ import { viewportGizmoOptions } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
 import Toolbar from "./components/Toolbar";
 import { useStateController } from "./helpers/StateProvider.js";
-import ModeSlider from "./components/ModeSlider.js";
+import ModeSlider from "./components/ModeSlider";
 import { handleUI } from "./scripts/UIHandler.js";
 
 function Canvas() {
@@ -48,6 +48,7 @@ function Canvas() {
     const controls = createControls(camera, renderer);
     setControls(controls);
     controls.saveState();
+    controls.enableRotate = false;
 
     createScene(
       sceneRef.current,
