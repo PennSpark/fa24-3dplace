@@ -42,7 +42,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
   const setIsMouseOverUI = (flag: boolean) => {
     isMouseOverUIRef.current = flag; // update the ref value
   };
-  const isBuildModeRef = useRef(true);
+  const isBuildModeRef = useRef(false);
 
   return (
     <StateControllerContext.Provider
