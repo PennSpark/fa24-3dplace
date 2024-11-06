@@ -41,25 +41,25 @@
 }
 
 .color-pallete {
-  width: 50%;
   background-color: #fbfbfb;
   border-radius: 15px;
   border: 1.5px solid rgb(255, 255, 255);
   box-shadow: 0 10px 16px rgba(0, 0, 0, 0.4);
   position: fixed;
   bottom: 20px;
-  left: 25%;
+  padding: 0 0.5rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-evenly;
-
+  left: 50%; 
+  transform: translateX(-50%); 
 }
 
 .color-option {
-  width: 35px;
-  height: 35px;
-  margin: 16px 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 1rem 0.5rem;
   cursor: pointer;
   caret-color: transparent;
   padding: 10px;

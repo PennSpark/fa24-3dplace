@@ -49,26 +49,26 @@ function Toolbar() {
 
   return (
     <div className="toolbar ui-element">
-      <button 
-        title="Reset Camera" 
+      <button
+        title="Reset Camera"
         onClick={handleResetCamera}
         className="mr-2 toolbar-button"
       >
-        <FaHome className='text-black'/>
+        <FaHome className="text-black" />
       </button>
-      <button 
-        title="Zoom In" 
+      <button
+        title="Zoom In"
         onClick={handleZoomIn}
         className="mr-2 toolbar-button"
       >
-        <FaSearchPlus className='text-black'/>
+        <FaSearchPlus className="text-black" />
       </button>
-      <button 
-        title="Zoom Out" 
+      <button
+        title="Zoom Out"
         onClick={handleZoomOut}
         className="mr-2 toolbar-button"
       >
-        <FaSearchMinus className='text-black'/>
+        <FaSearchMinus className="text-black" />
       </button>
     </div>
   );

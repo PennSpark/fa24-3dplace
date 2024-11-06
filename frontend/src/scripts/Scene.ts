@@ -73,7 +73,12 @@ export function createScene(
   window.addEventListener("resize", onWindowResize);
 
   function onMouseMove(event: { clientX: number; clientY: number }) {
-    if (isBuildModeRef.current) {
+    // toggle visibility of the voxel preview mesh
+    // if transparent or not in build mode then don't show
+    voxelPreviewMesh.visible =
+      currColorRef.current !== "transparent" && isBuildModeRef.current;
+
+    if (isBuildModeRef.current && currColorRef.current !== "transparent") {
       mousePos.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1
@@ -128,32 +133,40 @@ export function createScene(
       if (intersects.length > 0) {
         const intersect = intersects[0];
 
-        // on click, create new voxel using ref.current and new mesh material
-        const colorDecimal = parseInt(
-          currColorRef.current.replace("#", ""),
-          16
-        );
-        // right now matcap makes it so the lighting system doesnt affect material
-        const voxelBaseMat = new THREE.MeshMatcapMaterial({
-          color: colorDecimal,
-        });
-        const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
-        voxelMesh.name = "voxel";
+        // if on transparent color, then delete current voxel cursor is on
+        if (currColorRef.current === "transparent") {
+          if (intersect.object !== planeMesh) {
+            scene.remove(intersect.object);
+            objects.splice(objects.indexOf(intersect.object), 1);
+          }
+        } else {
+          // on click, create new voxel using ref.current and new mesh material
+          const colorDecimal = parseInt(
+            currColorRef.current.replace("#", ""),
+            16
+          );
+          // right now matcap makes it so the lighting system doesnt affect material
+          const voxelBaseMat = new THREE.MeshMatcapMaterial({
+            color: colorDecimal,
+          });
+          const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+          voxelMesh.name = "voxel";
 
-        const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+          const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
 
-        if (intersect.face)
-          voxel.position.copy(intersect.point).add(intersect.face.normal);
-        voxel.position
-          .divideScalar(gridCellSize)
-          .floor()
-          .multiplyScalar(gridCellSize)
-          .addScalar(gridCellSize / 2);
+          if (intersect.face)
+            voxel.position.copy(intersect.point).add(intersect.face.normal);
+          voxel.position
+            .divideScalar(gridCellSize)
+            .floor()
+            .multiplyScalar(gridCellSize)
+            .addScalar(gridCellSize / 2);
 
-        // ensure the y-coord is above the plane
-        voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
-        scene.add(voxel);
-        objects.push(voxel);
+          // ensure the y-coord is above the plane
+          voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
+          scene.add(voxel);
+          objects.push(voxel);
+        }
       }
     }
   }

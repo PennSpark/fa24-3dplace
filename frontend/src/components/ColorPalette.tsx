@@ -1,4 +1,5 @@
 import { useStateController } from "../helpers/StateProvider";
+import transparentBackground from "../assets/transparent_background.png";
 
 function ColorPalette() {
   const colors: string[] = [
@@ -33,10 +34,15 @@ function ColorPalette() {
             className="color-option"
             key={color} // Add a key for each element
             onClick={() => {
-              setCurrColor(color); // Call setColor on click
+              setCurrColor(color);
             }}
             style={{
-              backgroundColor: color,
+              backgroundColor: color !== "transparent" ? color : "initial",
+              backgroundImage:
+                color === "transparent"
+                  ? `url(${transparentBackground})`
+                  : "none",
+              backgroundSize: "contain",
             }}
           ></div>
         );
