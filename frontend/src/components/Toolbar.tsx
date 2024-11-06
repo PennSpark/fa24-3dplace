@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import {
   FaHome,
   FaSearchPlus,
@@ -10,11 +11,22 @@ import { useState } from "react";
 
 function Toolbar({ controls }: { controls: OrbitControls }) {
   // toolbar button functionality
+=======
+import { FaHome, FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
+import { useStateController } from "../helpers/StateProvider";
+
+function Toolbar() {
+
+>>>>>>> Stashed changes
   const MAX_ZOOM_IN_STEPS = 50;
   let zoomSteps = 0;
 
+<<<<<<< Updated upstream
   const [isPanning, setIsPanning] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
+=======
+  const { controls } = useStateController();
+>>>>>>> Stashed changes
 
   const handleResetCamera = () => {
     controls.reset();
@@ -46,6 +58,7 @@ function Toolbar({ controls }: { controls: OrbitControls }) {
     zoomOut();
   };
 
+<<<<<<< Updated upstream
   const handleTogglePan = () => {
     controls.enableRotate = false;
     controls.enablePan = true;
@@ -86,6 +99,30 @@ function Toolbar({ controls }: { controls: OrbitControls }) {
         className={`mr-2 ${isRotating ? "bg-blue-500" : ""}`}
       >
         <FaUndo />
+=======
+  return (
+    <div className="toolbar">
+      <button 
+        title="Reset Camera" 
+        onClick={handleResetCamera}
+        className="mr-2 toolbar-button"
+      >
+        <FaHome className='text-black'/>
+      </button>
+      <button 
+        title="Zoom In" 
+        onClick={handleZoomIn}
+        className="mr-2 toolbar-button"
+      >
+        <FaSearchPlus className='text-black'/>
+      </button>
+      <button 
+        title="Zoom Out" 
+        onClick={handleZoomOut}
+        className="mr-2 toolbar-button"
+      >
+        <FaSearchMinus className='text-black'/>
+>>>>>>> Stashed changes
       </button>
     </div>
   );

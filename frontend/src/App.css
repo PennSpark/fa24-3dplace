@@ -63,3 +63,40 @@
   border: 0.2px solid rgb(175, 175, 175);
   border-radius: 5px;
 }
+
+.toolbar {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  background-color: #ffffff;
+  padding: 1rem;
+  border-width: 1px;
+  border-color: #d1d5db;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+}
+
+.toolbar-button {
+  background-color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mode-slider {
+  position: fixed;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  padding: 1rem;
+  border-width: 1px;
+  border-color: #d1d5db;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+}
+
