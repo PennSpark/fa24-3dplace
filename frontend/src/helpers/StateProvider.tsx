@@ -16,6 +16,7 @@ interface StateControllerContextType {
   setControls: (controls: any) => void;
   isMouseOverUIRef: MutableRefObject<boolean>;
   setIsMouseOverUI: (flag: boolean) => void;
+  isBuildModeRef: MutableRefObject<boolean>;
 }
 
 const StateControllerContext = createContext<
@@ -41,6 +42,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
   const setIsMouseOverUI = (flag: boolean) => {
     isMouseOverUIRef.current = flag; // update the ref value
   };
+  const isBuildModeRef = useRef(true);
 
   return (
     <StateControllerContext.Provider
@@ -51,6 +53,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
         setControls,
         isMouseOverUIRef,
         setIsMouseOverUI,
+        isBuildModeRef
       }}
     >
       {children}
