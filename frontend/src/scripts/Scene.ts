@@ -34,13 +34,16 @@ export function createScene(
 
   // --- voxel highlight mesh ---
   const voxelPreviewMat = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
+    color: currColorRef.current,
     opacity: 0.5,
     transparent: true,
   });
   const voxelPreviewMesh = new THREE.Mesh(voxelGeometry, voxelPreviewMat);
   voxelPreviewMesh.name = "voxelPreview";
   scene.add(voxelPreviewMesh);
+
+  // keep track of preview color
+  let lastPreviewColor = currColorRef.current;
 
   // keep updated list of all rendered objects
   const objects: any[] = [];
@@ -77,6 +80,14 @@ export function createScene(
     // if transparent or not in build mode then don't show
     voxelPreviewMesh.visible =
       currColorRef.current !== "transparent" && isBuildModeRef.current;
+
+    // update voxel preview color if it has changed
+    // lowk this not effective, could be in useEffect callback w/ currColorRef in callback to update
+    // but i dont got time for allat
+    if (currColorRef.current !== lastPreviewColor) {
+      voxelPreviewMat.color.set(currColorRef.current);
+      lastPreviewColor = currColorRef.current;
+    }
 
     if (isBuildModeRef.current && currColorRef.current !== "transparent") {
       mousePos.set(
@@ -151,7 +162,6 @@ export function createScene(
           });
           const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
           voxelMesh.name = "voxel";
-
           const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
 
           if (intersect.face)

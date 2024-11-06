@@ -22,10 +22,12 @@ function Canvas() {
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
 
   useEffect(() => {
     // scene, camera, renderer initalization
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
     const camera = new THREE.PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
@@ -48,7 +50,7 @@ function Canvas() {
     controls.saveState();
 
     createScene(
-      scene,
+      sceneRef.current,
       camera,
       renderer,
       currColorRef,
