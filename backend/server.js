@@ -1,41 +1,129 @@
-const express = require("express");
+// require dependencies
+const http = require("http");
+const { WebSocketServer } = require("ws");
 const cors = require("cors");
-const bodyParser = require("body-parser");
-const dbConnect = require("./dbConnect.js");
+const uuidv4 = require("uuid").v4;
+const url = require("url");
+const dbConnect = require("./dbConnect.js"); // init mongo database
+const Voxel = require("./models/Voxel"); // mongodb model for voxel data
 
-const app = express();
-const corsOptions = {
-  origin: ["https://localhost:5173", "https://3dPlace.com"],
+// initialize server
+const server = http.createServer();
+const wsServer = new WebSocketServer({ server });
+const port = process.env.PORT || 8000;
+dbConnect();
+
+const connections = {}; // keep track of current connections - stores lots of other metadata
+const users = {}; // keep track of users - stores our own data that we care about
+
+// broadcast, send msg to all clients, so just iterate over connections
+const broadcast = (message) => {
+  for (const uuid in connections) {
+    connections[uuid].send(JSON.stringify(message));
+  }
 };
-app.use(cors(corsOptions));
-app.use(bodyParser.json());
 
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-});
-
-// Create the model
-const User = mongoose.model("User", userSchema);
-
-app.post("newUser", async (req, res) => {
+// connection event handlers
+const handleMessage = async (bytes, uuid) => {
   try {
-    const newUser = new User(req.body());
-    await newUser.save();
-    res.status(201).send("User updated successfully!");
+    const data = JSON.parse(bytes.toString());
+    console.log(data);
+
+    // remember we define {} format of data
+    if (data.type === "NEW_VOXEL") {
+      const { x, y, z, color, creatorName, timeCreated } = data;
+      // const username = users[uuid].username;
+
+      // save new voxel to MongoDB
+      const newVoxel = await Voxel.create({
+        x,
+        y,
+        z,
+        color,
+        creatorName,
+        timeCreated,
+      });
+
+      // defining {} format of data
+      broadcast({ type: "NEW_VOXEL", voxel: newVoxel });
+    }
   } catch (error) {
-    res.status(404).send(error);
+    console.error("Error handling message: ", error);
+    connections[uuid].send(
+      JSON.stringify({
+        type: "ERROR",
+        message: "An error occurred while processing the voxel.",
+      })
+    );
   }
+};
+
+const handleClose = (uuid) => {
+  console.log("Connection closed:", uuid);
+  delete connections[uuid];
+  delete users[uuid];
+
+  //? do we need to send broadcast to update when user disconnects
+  broadcast({ type: "USER_DISCONNECT", uuid });
+};
+
+// listen for connections using websockets
+wsServer.on("connection", (connection, request) => {
+  const { username } = url.parse(request.url, true).query;
+  const uuid = uuidv4(); // generate unique identifier for every user
+  console.log(`${username} connected with UUID: ${uuid}`);
+
+  connections[uuid] = connection; // store (key, value) pair => (uuid, connection)
+  users[uuid] = {
+    username: username,
+    state: {}, // any real-time data that user contains? do we have, maybe maybe not?
+  };
+
+  // the {} format of message, we will define so dw
+  connection.on("message", (message) => handleMessage(message, uuid));
+  connection.on("close", () => handleClose(uuid));
 });
 
-app.get("retrieveState", (req, res) => {
-  try {
-  } catch (error) {
-    res.status(404).send(error);
-  }
+server.listen(port, () => {
+  console.log("websocket server is running on port: " + port);
 });
 
-const PORT = process.env.PORT || 8080;
+// const express = require("express");
+// const bodyParser = require("body-parser");
 
-app.listen(PORT, `Server listening on port ${PORT}!`);
+// const app = express();
+// const corsOptions = {
+//   origin: ["https://localhost:5173", "https://3dPlace.com"],
+// };
+// app.use(cors(corsOptions));
+// app.use(bodyParser.json());
+
+// const userSchema = new mongoose.Schema({
+//   username: { type: String, required: true },
+//   email: { type: String, required: true },
+//   password: { type: String, required: true },
+// });
+
+// // Create the model
+// const User = mongoose.model("User", userSchema);
+
+// app.post("newUser", async (req, res) => {
+//   try {
+//     const newUser = new User(req.body());
+//     await newUser.save();
+//     res.status(201).send("User updated successfully!");
+//   } catch (error) {
+//     res.status(404).send(error);
+//   }
+// });
+
+// app.get("retrieveState", (req, res) => {
+//   try {
+//   } catch (error) {
+//     res.status(404).send(error);
+//   }
+// });
+
+// const PORT = process.env.PORT || 8080;
+
+// app.listen(PORT, `Server listening on port ${PORT}!`);
