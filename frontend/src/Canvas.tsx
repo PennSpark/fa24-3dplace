@@ -96,7 +96,7 @@ function Canvas(props: { username: string }) {
       y,
       z,
       color,
-      username: props.username,
+      creatorName: props.username,
       timeCreated: Date.now(),
     });
   };

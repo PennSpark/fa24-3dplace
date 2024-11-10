@@ -15,7 +15,18 @@ dbConnect();
 
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
-const voxelData = []; // local websocket copy of all voxels on canvas - can push to mongodb?
+const voxelData = []; // local websocket copy of all voxels on canvas - pull from mongo on init
+
+// load initial voxel data from MongoDB when the server starts
+const initializeVoxelData = async () => {
+  try {
+    const voxels = await Voxel.find({}); // fetch all voxels from MongoDB
+    voxelData.push(...voxels);
+    console.log("Voxel data initialized from MongoDB.");
+  } catch (error) {
+    console.error("Error initializing voxel data:", error);
+  }
+};
 
 // broadcast, send msg to all clients, so just iterate over connections
 const broadcast = (message) => {
@@ -35,19 +46,18 @@ const handleMessage = async (bytes, uuid) => {
       const { x, y, z, color, creatorName, timeCreated } = data;
       // const username = users[uuid].username;
 
-      // locally push new voxel created
-      const newVoxel = { x, y, z, color, creatorName, timeCreated };
-      voxelData.push(newVoxel);
+      // save new voxel to MongoDB
+      const newVoxel = await Voxel.create({
+        x,
+        y,
+        z,
+        color,
+        creatorName,
+        timeCreated,
+      });
 
-      // // save new voxel to MongoDB
-      // const newVoxel = await Voxel.create({
-      //   x,
-      //   y,
-      //   z,
-      //   color,
-      //   creatorName,
-      //   timeCreated,
-      // });
+      // locally push new voxel created
+      voxelData.push(newVoxel);
 
       // defining {} format of data
       const message = { type: "NEW_VOXEL", voxel: newVoxel };
@@ -57,14 +67,17 @@ const handleMessage = async (bytes, uuid) => {
     if (data.type === "DELETE_VOXEL") {
       const { x, y, z } = data; // extra the position of the voxel to delete
 
-      // find and remove the voxel from the local data on server
+      // find voxel from the local data on server
       const index = voxelData.findIndex(
         (voxel) => voxel.x === x && voxel.y === y && voxel.z === z
       );
-      if (index !== -1) {
-        const deletedVoxel = voxelData.splice(index, 1)[0]; // remove the voxel from the array
 
-        //TODO DELETE FROM MONGODB
+      if (index !== -1) {
+        // remove the voxel from the local data on server
+        const deletedVoxel = voxelData.splice(index, 1)[0];
+
+        // delete from mongodb
+        await Voxel.deleteOne({ x, y, z });
 
         // broadcast the voxel deletion to all clients
         const message = { type: "DELETE_VOXEL", voxel: deletedVoxel };
@@ -114,17 +127,6 @@ wsServer.on("connection", async (connection, request) => {
   // send initial voxel data to new connection from local copy of data
   connection.send(JSON.stringify({ type: "INITIAL_DATA", voxels: voxelData }));
 
-  // // send initial voxel data to the client from database
-  // try {
-  //   const voxels = await Voxel.find(); // Fetch all voxels from MongoDB
-  //   connection.send(JSON.stringify({ type: "INITIAL_DATA", voxels }));
-  // } catch (error) {
-  //   console.error("Error fetching initial voxel data:", error);
-  //   connection.send(
-  //     JSON.stringify({ type: "ERROR", message: "Failed to load initial data" })
-  //   );
-  // }
-
   // the {} format of message, we will define so dw
   connection.on("message", (message) => handleMessage(message, uuid));
   connection.on("close", () => handleClose(uuid));
@@ -132,6 +134,7 @@ wsServer.on("connection", async (connection, request) => {
 
 server.listen(port, () => {
   console.log("websocket server is running on port: " + port);
+  initializeVoxelData(); // populate voxelData at server start
 });
 
 // const express = require("express");
