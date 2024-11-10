@@ -52,9 +52,12 @@ export function createScene(
   const mousePos = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
 
+  const mouseDelta = new THREE.Vector2();
+
   // setup input/window listeners
   window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mousedown", onMouseDown)
+  window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
 
   function onMouseMove(event: { clientX: number; clientY: number }) {
@@ -89,6 +92,11 @@ export function createScene(
   }
 
   function onMouseDown(event: { clientX: number; clientY: number }) {
+    mouseDelta.set(event.clientX, event.clientY);
+  }
+
+  function onMouseUp(event: { clientX: number; clientY: number }) {
+    mouseDelta.set(event.clientX - mouseDelta.getComponent(0), event.clientY - mouseDelta.getComponent(1));
     mousePos.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1
@@ -100,7 +108,7 @@ export function createScene(
 
     if (intersects.length > 0) {
       const intersect = intersects[0];
-      
+
       const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
       if (intersect.face)
         voxel.position.copy(intersect.point).add(intersect.face.normal);
@@ -112,8 +120,12 @@ export function createScene(
 
       // ensure the y-coord is above the plane
       voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
-      scene.add(voxel);
-      objects.push(voxel);
+      if (mouseDelta.getComponent(0) == 0 && mouseDelta.getComponent(1) == 0) {
+        scene.add(voxel);
+        objects.push(voxel);
+      }
+      mouseDelta.set(0, 0)
+
     }
   }
 
