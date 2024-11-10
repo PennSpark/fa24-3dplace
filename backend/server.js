@@ -53,6 +53,32 @@ const handleMessage = async (bytes, uuid) => {
       const message = { type: "NEW_VOXEL", voxel: newVoxel };
       broadcast(message);
     }
+
+    if (data.type === "DELETE_VOXEL") {
+      const { x, y, z } = data; // extra the position of the voxel to delete
+
+      // find and remove the voxel from the local data on server
+      const index = voxelData.findIndex(
+        (voxel) => voxel.x === x && voxel.y === y && voxel.z === z
+      );
+      if (index !== -1) {
+        const deletedVoxel = voxelData.splice(index, 1)[0]; // remove the voxel from the array
+
+        //TODO DELETE FROM MONGODB
+
+        // broadcast the voxel deletion to all clients
+        const message = { type: "DELETE_VOXEL", voxel: deletedVoxel };
+        broadcast(message);
+      } else {
+        // if voxel not found send error response
+        connections[uuid].send(
+          JSON.stringify({
+            type: "ERROR",
+            message: "Voxel not found for deletion.",
+          })
+        );
+      }
+    }
   } catch (error) {
     console.error("Error handling message: ", error);
     connections[uuid].send(

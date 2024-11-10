@@ -23,6 +23,8 @@ function Canvas(props: { username: string }) {
     isMouseOverUIRef,
     setIsMouseOverUI,
     isBuildModeRef,
+    isServerOnlineRef,
+    setIsServerOnline,
   } = useStateController();
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
@@ -39,6 +41,7 @@ function Canvas(props: { username: string }) {
   // process incoming messages from ws connection
   useEffect(() => {
     if (lastMessage !== null) {
+      setIsServerOnline(true);
       const data = JSON.parse(lastMessage.data);
 
       if (data.type === "INITIAL_DATA") {
@@ -47,6 +50,8 @@ function Canvas(props: { username: string }) {
         });
       } else if (data.type === "NEW_VOXEL") {
         addVoxelToScene(data.voxel);
+      } else if (data.type === "DELETE_VOXEL") {
+        removeVoxelFromScene(data.voxel);
       }
     }
   }, [lastMessage]);
@@ -78,6 +83,7 @@ function Canvas(props: { username: string }) {
 
       voxelMesh.position.set(x, y, z);
       sceneRef.current?.add(voxelMesh);
+
       sceneObjectsRef.current?.push(voxelMesh);
     }
   };
@@ -92,6 +98,37 @@ function Canvas(props: { username: string }) {
       color,
       username: props.username,
       timeCreated: Date.now(),
+    });
+  };
+
+  // function to remove voxel from scene
+  function removeVoxelFromScene(voxel: { x: any; y: any; z: any }) {
+    // find the voxel object in the sceneObjectsRef array based on its position
+    const voxelToRemove = sceneObjectsRef.current.find(
+      (obj) =>
+        obj.position.x === voxel.x &&
+        obj.position.y === voxel.y &&
+        obj.position.z === voxel.z
+    );
+
+    if (voxelToRemove) {
+      // remove the voxel mesh from the scene
+      sceneRef.current?.remove(voxelToRemove);
+
+      // also remove the voxel mesh from the sceneObjectsRef array
+      sceneObjectsRef.current = sceneObjectsRef.current.filter(
+        (obj) => obj !== voxelToRemove
+      );
+    }
+  }
+
+  // helper function to remove voxel data from server
+  const deleteVoxel = (x: number, y: number, z: number) => {
+    sendJsonMessage({
+      type: "DELETE_VOXEL",
+      x,
+      y,
+      z,
     });
   };
 
@@ -132,7 +169,9 @@ function Canvas(props: { username: string }) {
       isMouseOverUIRef,
       isBuildModeRef,
       placeVoxel,
-      sceneObjectsRef
+      sceneObjectsRef,
+      isServerOnlineRef,
+      deleteVoxel
     ); // render the scene
 
     // setup viewport gizmo

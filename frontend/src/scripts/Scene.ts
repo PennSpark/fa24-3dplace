@@ -10,7 +10,9 @@ export function createScene(
   isMouseOverUIRef: MutableRefObject<boolean>,
   isBuildModeRef: MutableRefObject<boolean>,
   placeVoxel: Function,
-  sceneObjects: MutableRefObject<any[]>
+  sceneObjects: MutableRefObject<any[]>,
+  isServerOnlineRef: MutableRefObject<boolean>,
+  deleteVoxel: Function
 ) {
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
@@ -90,7 +92,10 @@ export function createScene(
     // update voxel preview color if it has changed
     // lowk this not effective, could be in useEffect callback w/ currColorRef in callback to update
     // but i dont got time for allat
-    if (currColorRef.current !== lastPreviewColor) {
+    if (
+      currColorRef.current !== lastPreviewColor &&
+      currColorRef.current !== "transparent"
+    ) {
       voxelPreviewMat.color.set(currColorRef.current);
       lastPreviewColor = currColorRef.current;
     }
@@ -111,6 +116,7 @@ export function createScene(
       if (intersects.length > 0) {
         const intersect = intersects[0];
 
+        // math to determine where voxel should be when hovering over faces of other voxels
         if (intersect.face)
           voxelPreviewMesh.position
             .copy(intersect.point)
@@ -159,11 +165,23 @@ export function createScene(
         // if on transparent color, then delete current voxel cursor is on
         if (currColorRef.current === "transparent") {
           if (intersect.object !== planeMesh) {
-            scene.remove(intersect.object);
-            sceneObjects.current.splice(
-              sceneObjects.current.indexOf(intersect.object),
-              1
+            const voxelToRemove = intersect.object;
+
+            // send data to backend -> triggers deletion on frontend when ws recieves msg
+            deleteVoxel(
+              voxelToRemove.position.x,
+              voxelToRemove.position.y,
+              voxelToRemove.position.z
             );
+
+            // handles object deletion when server not running
+            if (!isServerOnlineRef.current) {
+              scene.remove(voxelToRemove);
+              sceneObjects.current.splice(
+                sceneObjects.current.indexOf(voxelToRemove),
+                1
+              );
+            }
           }
         } else {
           // on click, create new voxel using ref.current and new mesh material
@@ -178,6 +196,7 @@ export function createScene(
           const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
           voxel.name = "voxel";
 
+          // math to determine where voxel should be on grid
           if (intersect.face)
             voxel.position.copy(intersect.point).add(intersect.face.normal);
           voxel.position
@@ -189,7 +208,7 @@ export function createScene(
           // ensure the y-coord is above the plane
           voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
 
-          // send data to backend
+          // send data to backend -> triggers block placement on frontend when ws recieves data
           placeVoxel(
             voxel.position.x,
             voxel.position.y,
@@ -197,9 +216,11 @@ export function createScene(
             currColorRef.current
           );
 
-          // place in scene
-          scene.add(voxel);
-          sceneObjects.current.push(voxel);
+          // handles object creation when server not running
+          if (!isServerOnlineRef.current) {
+            scene.add(voxel);
+            sceneObjects.current.push(voxel);
+          }
         }
       }
     }
