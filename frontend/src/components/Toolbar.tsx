@@ -1,8 +1,4 @@
-import {
-  FaHome,
-  FaSearchPlus,
-  FaSearchMinus,
-} from "react-icons/fa";
+import { FaHome, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 import { useStateController } from "../helpers/StateProvider";
 
 function Toolbar() {
@@ -46,21 +42,21 @@ function Toolbar() {
       <button
         title="Reset Camera"
         onClick={handleResetCamera}
-        className="mr-2 toolbar-button"
+        className="mr-5 toolbar-button"
       >
         <FaHome className="text-black" />
       </button>
       <button
         title="Zoom In"
         onClick={handleZoomIn}
-        className="mr-2 toolbar-button"
+        className="mr-5 toolbar-button"
       >
         <FaSearchPlus className="text-black" />
       </button>
       <button
         title="Zoom Out"
         onClick={handleZoomOut}
-        className="mr-2 toolbar-button"
+        className="toolbar-button"
       >
         <FaSearchMinus className="text-black" />
       </button>

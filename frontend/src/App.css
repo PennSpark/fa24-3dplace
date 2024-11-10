@@ -67,7 +67,8 @@ body {
   cursor: pointer;
   caret-color: transparent;
   padding: 10px;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  border-radius: 2px;
+  box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);
 }
 
 .toolbar {
@@ -87,11 +88,10 @@ body {
 .toolbar-button {
   background-color: #ffffff;
   border: none;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  padding: 0.5rem;
+  font-size: 1.3rem;
   cursor: pointer;
-  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);
 }
 
 .mode-slider {
