@@ -16,6 +16,7 @@ dbConnect();
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
 const voxelData = []; // local websocket copy of all voxels on canvas - pull from mongo on init
+let isDatabaseOnline = false;
 
 // load initial voxel data from MongoDB when the server starts
 const initializeVoxelData = async () => {
@@ -23,6 +24,7 @@ const initializeVoxelData = async () => {
     const voxels = await Voxel.find({}); // fetch all voxels from MongoDB
     voxelData.push(...voxels);
     console.log("Voxel data initialized from MongoDB.");
+    isDatabaseOnline = true;
   } catch (error) {
     console.error("Error initializing voxel data:", error);
   }
@@ -46,15 +48,17 @@ const handleMessage = async (bytes, uuid) => {
       const { x, y, z, color, creatorName, timeCreated } = data;
       // const username = users[uuid].username;
 
-      // save new voxel to MongoDB
-      const newVoxel = await Voxel.create({
+      const newVoxel = {
         x,
         y,
         z,
         color,
         creatorName,
         timeCreated,
-      });
+      };
+
+      // save new voxel to MongoDB
+      if (isDatabaseOnline) await Voxel.create(newVoxel);
 
       // locally push new voxel created
       voxelData.push(newVoxel);
@@ -77,7 +81,7 @@ const handleMessage = async (bytes, uuid) => {
         const deletedVoxel = voxelData.splice(index, 1)[0];
 
         // delete from mongodb
-        await Voxel.deleteOne({ x, y, z });
+        if (isDatabaseOnline) await Voxel.deleteOne({ x, y, z });
 
         // broadcast the voxel deletion to all clients
         const message = { type: "DELETE_VOXEL", voxel: deletedVoxel };
@@ -127,7 +131,6 @@ wsServer.on("connection", async (connection, request) => {
   // send initial voxel data to new connection from local copy of data
   connection.send(JSON.stringify({ type: "INITIAL_DATA", voxels: voxelData }));
 
-  // the {} format of message, we will define so dw
   connection.on("message", (message) => handleMessage(message, uuid));
   connection.on("close", () => handleClose(uuid));
 });
