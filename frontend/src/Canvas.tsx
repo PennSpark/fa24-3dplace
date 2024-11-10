@@ -28,6 +28,8 @@ function Canvas(props: { username: string }) {
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+  // keep updated list of all rendered objects
+  const sceneObjectsRef = useRef<any[]>([]);
 
   // establish web socket connection
   const { sendJsonMessage, lastMessage } = useWebSocket(WEB_SOCKET_URL, {
@@ -76,6 +78,7 @@ function Canvas(props: { username: string }) {
 
       voxelMesh.position.set(x, y, z);
       sceneRef.current?.add(voxelMesh);
+      sceneObjectsRef.current?.push(voxelMesh);
     }
   };
 
@@ -128,7 +131,8 @@ function Canvas(props: { username: string }) {
       currColorRef,
       isMouseOverUIRef,
       isBuildModeRef,
-      placeVoxel
+      placeVoxel,
+      sceneObjectsRef
     ); // render the scene
 
     // setup viewport gizmo

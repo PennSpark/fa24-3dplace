@@ -9,7 +9,8 @@ export function createScene(
   currColorRef: MutableRefObject<string>,
   isMouseOverUIRef: MutableRefObject<boolean>,
   isBuildModeRef: MutableRefObject<boolean>,
-  placeVoxel: Function
+  placeVoxel: Function,
+  sceneObjects: MutableRefObject<any[]>
 ) {
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
@@ -21,6 +22,7 @@ export function createScene(
   planeMesh.rotateX(-Math.PI / 2);
   planeMesh.name = "plane";
   scene.add(planeMesh);
+  sceneObjects.current.push(planeMesh);
 
   // create grid overlay on plane
   const grid = new THREE.GridHelper(dimensions.l, gridSideLength);
@@ -45,10 +47,6 @@ export function createScene(
 
   // keep track of preview color
   let lastPreviewColor = currColorRef.current;
-
-  // keep updated list of all rendered objects
-  const objects: any[] = [];
-  objects.push(planeMesh);
 
   // LIGHTING!!! need this to show results of mesh material
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft ambient light
@@ -105,7 +103,10 @@ export function createScene(
 
       raycaster.setFromCamera(mousePos, camera);
 
-      const intersects = raycaster.intersectObjects(objects, false);
+      const intersects = raycaster.intersectObjects(
+        sceneObjects.current,
+        false
+      );
 
       if (intersects.length > 0) {
         const intersect = intersects[0];
@@ -147,7 +148,10 @@ export function createScene(
 
       raycaster.setFromCamera(mousePos, camera);
 
-      const intersects = raycaster.intersectObjects(objects, false);
+      const intersects = raycaster.intersectObjects(
+        sceneObjects.current,
+        false
+      );
 
       if (intersects.length > 0) {
         const intersect = intersects[0];
@@ -156,7 +160,10 @@ export function createScene(
         if (currColorRef.current === "transparent") {
           if (intersect.object !== planeMesh) {
             scene.remove(intersect.object);
-            objects.splice(objects.indexOf(intersect.object), 1);
+            sceneObjects.current.splice(
+              sceneObjects.current.indexOf(intersect.object),
+              1
+            );
           }
         } else {
           // on click, create new voxel using ref.current and new mesh material
@@ -192,7 +199,7 @@ export function createScene(
 
           // place in scene
           scene.add(voxel);
-          objects.push(voxel);
+          sceneObjects.current.push(voxel);
         }
       }
     }
