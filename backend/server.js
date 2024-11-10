@@ -15,6 +15,7 @@ dbConnect();
 
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
+const voxelData = []; // local websocket copy of all voxels on canvas - can push to mongodb?
 
 // broadcast, send msg to all clients, so just iterate over connections
 const broadcast = (message) => {
@@ -34,18 +35,23 @@ const handleMessage = async (bytes, uuid) => {
       const { x, y, z, color, creatorName, timeCreated } = data;
       // const username = users[uuid].username;
 
-      // save new voxel to MongoDB
-      const newVoxel = await Voxel.create({
-        x,
-        y,
-        z,
-        color,
-        creatorName,
-        timeCreated,
-      });
+      // locally push new voxel created
+      const newVoxel = { x, y, z, color, creatorName, timeCreated };
+      voxelData.push(newVoxel);
+
+      // // save new voxel to MongoDB
+      // const newVoxel = await Voxel.create({
+      //   x,
+      //   y,
+      //   z,
+      //   color,
+      //   creatorName,
+      //   timeCreated,
+      // });
 
       // defining {} format of data
-      broadcast({ type: "NEW_VOXEL", voxel: newVoxel });
+      const message = { type: "NEW_VOXEL", voxel: newVoxel };
+      broadcast(message);
     }
   } catch (error) {
     console.error("Error handling message: ", error);
@@ -68,7 +74,7 @@ const handleClose = (uuid) => {
 };
 
 // listen for connections using websockets
-wsServer.on("connection", (connection, request) => {
+wsServer.on("connection", async (connection, request) => {
   const { username } = url.parse(request.url, true).query;
   const uuid = uuidv4(); // generate unique identifier for every user
   console.log(`${username} connected with UUID: ${uuid}`);
@@ -78,6 +84,20 @@ wsServer.on("connection", (connection, request) => {
     username: username,
     state: {}, // any real-time data that user contains? do we have, maybe maybe not?
   };
+
+  // send initial voxel data to new connection from local copy of data
+  connection.send(JSON.stringify({ type: "INITIAL_DATA", voxels: voxelData }));
+
+  // // send initial voxel data to the client from database
+  // try {
+  //   const voxels = await Voxel.find(); // Fetch all voxels from MongoDB
+  //   connection.send(JSON.stringify({ type: "INITIAL_DATA", voxels }));
+  // } catch (error) {
+  //   console.error("Error fetching initial voxel data:", error);
+  //   connection.send(
+  //     JSON.stringify({ type: "ERROR", message: "Failed to load initial data" })
+  //   );
+  // }
 
   // the {} format of message, we will define so dw
   connection.on("message", (message) => handleMessage(message, uuid));

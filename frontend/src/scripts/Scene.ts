@@ -8,7 +8,8 @@ export function createScene(
   renderer: THREE.Renderer,
   currColorRef: MutableRefObject<string>,
   isMouseOverUIRef: MutableRefObject<boolean>,
-  isBuildModeRef: MutableRefObject<boolean>
+  isBuildModeRef: MutableRefObject<boolean>,
+  placeVoxel: Function
 ) {
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
@@ -58,13 +59,13 @@ export function createScene(
   directionalLight.castShadow = true;
   scene.add(directionalLight);
 
-  // shows directional light helper
-  const lightHelper = new THREE.DirectionalLightHelper(
-    directionalLight,
-    1,
-    0xf00000
-  );
-  scene.add(lightHelper);
+  // // shows directional light helper
+  // const lightHelper = new THREE.DirectionalLightHelper(
+  //   directionalLight,
+  //   1,
+  //   0xf00000
+  // );
+  // scene.add(lightHelper);
 
   // --- mouse raycast ---
   const mousePos = new THREE.Vector2();
@@ -74,6 +75,13 @@ export function createScene(
   window.addEventListener("mousemove", onMouseMove);
   window.addEventListener("mousedown", onMouseDown);
   window.addEventListener("resize", onWindowResize);
+
+  // function to remove listeners
+  const removeEventListeners = () => {
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mousedown", onMouseDown);
+    window.removeEventListener("resize", onWindowResize);
+  };
 
   function onMouseMove(event: { clientX: number; clientY: number }) {
     // toggle visibility of the voxel preview mesh
@@ -160,9 +168,8 @@ export function createScene(
           const voxelBaseMat = new THREE.MeshMatcapMaterial({
             color: colorDecimal,
           });
-          const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
-          voxelMesh.name = "voxel";
           const voxel = new THREE.Mesh(voxelGeometry, voxelBaseMat);
+          voxel.name = "voxel";
 
           if (intersect.face)
             voxel.position.copy(intersect.point).add(intersect.face.normal);
@@ -174,6 +181,16 @@ export function createScene(
 
           // ensure the y-coord is above the plane
           voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
+
+          // send data to backend
+          placeVoxel(
+            voxel.position.x,
+            voxel.position.y,
+            voxel.position.z,
+            currColorRef.current
+          );
+
+          // place in scene
           scene.add(voxel);
           objects.push(voxel);
         }
@@ -186,4 +203,7 @@ export function createScene(
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight); // update renderer size
   }
+
+  // return back to canvas.tsx
+  return removeEventListeners;
 }

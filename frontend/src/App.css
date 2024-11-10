@@ -4,9 +4,13 @@
   text-align: center;
 }
 
+body {
+  background-color: rgb(243 244 246);
+}
+
 .logo {
   height: 6em;
-  padding: 1.5em;
+  padding: 1.5em; 
   will-change: filter;
   transition: filter 300ms;
 }
