@@ -11,16 +11,13 @@ function ColorPalette() {
     "#166F00",
     "#241FD3",
     "#00B2FF",
-    "#81F3ED",
     "#7900C3",
     "#F032E6",
     "#FFA4D1",
     "#D4852A",
     "#63300F",
     "#000000",
-    "#888888",
     "#E0E0E0",
-    "#FFFFFF",
     "transparent",
   ];
 

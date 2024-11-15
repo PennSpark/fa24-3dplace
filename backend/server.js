@@ -1,27 +1,40 @@
-// require dependencies
-const http = require("http");
-const { WebSocketServer } = require("ws");
-const cors = require("cors");
-const uuidv4 = require("uuid").v4;
-const url = require("url");
-const dbConnect = require("./dbConnect.js"); // init mongo database
-const Voxel = require("./models/Voxel"); // mongodb model for voxel data
+// import dependencies
+import http from "http";
+import { WebSocketServer } from "ws";
+import { v4 as uuidv4 } from "uuid";
+import url from "url";
+import Voxel from "./models/Voxel.js"; // mongoDB model for voxel data
+import redis from "redis";
+import dbConnect from "./dbConnect.js";
 
 // initialize server
 const server = http.createServer();
 const wsServer = new WebSocketServer({ server });
-const port = process.env.PORT || 8000;
-dbConnect();
+const port = process.env.SERVER_PORT || 8000;
+
+// connect to redis
+const redisClient = redis.createClient(process.env.REDIS_URL);
+redisClient.on("ready", () => console.error("Connected to  Redis"));
+redisClient.on("error", (err) => console.error("Redis error:", err));
+await redisClient.connect();
+
+// connect to database
+await dbConnect();
 
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
 const voxelData = []; // local websocket copy of all voxels on canvas - pull from mongo on init
 let isDatabaseOnline = false;
 
-// load initial voxel data from MongoDB when the server starts
+// Redis constants
+const REDIS_BITFIELD_KEY = "board";
+
+// initialize Redis with data from MongoDB
 const initializeVoxelData = async () => {
   try {
     const voxels = await Voxel.find({}); // fetch all voxels from MongoDB
+    // const binaryVoxel = getSerializedVoxels(voxels); // binary rep of voxel data
+    // redisClient.setBit(REDIS_BITFIELD_KEY, offset, binaryVoxel);
     voxelData.push(...voxels);
     console.log("Voxel data initialized from MongoDB.");
     isDatabaseOnline = true;
@@ -139,43 +152,3 @@ server.listen(port, () => {
   console.log("websocket server is running on port: " + port);
   initializeVoxelData(); // populate voxelData at server start
 });
-
-// const express = require("express");
-// const bodyParser = require("body-parser");
-
-// const app = express();
-// const corsOptions = {
-//   origin: ["https://localhost:5173", "https://3dPlace.com"],
-// };
-// app.use(cors(corsOptions));
-// app.use(bodyParser.json());
-
-// const userSchema = new mongoose.Schema({
-//   username: { type: String, required: true },
-//   email: { type: String, required: true },
-//   password: { type: String, required: true },
-// });
-
-// // Create the model
-// const User = mongoose.model("User", userSchema);
-
-// app.post("newUser", async (req, res) => {
-//   try {
-//     const newUser = new User(req.body());
-//     await newUser.save();
-//     res.status(201).send("User updated successfully!");
-//   } catch (error) {
-//     res.status(404).send(error);
-//   }
-// });
-
-// app.get("retrieveState", (req, res) => {
-//   try {
-//   } catch (error) {
-//     res.status(404).send(error);
-//   }
-// });
-
-// const PORT = process.env.PORT || 8080;
-
-// app.listen(PORT, `Server listening on port ${PORT}!`);

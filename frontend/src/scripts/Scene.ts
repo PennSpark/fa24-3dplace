@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { dimensions, gridCellSize, gridSideLength } from "../helpers/Constants";
 import { MutableRefObject } from "react";
+import { worldToGridCoordinates } from "../helpers/changeCoords";
 
 export function createScene(
   scene: THREE.Scene,
@@ -167,12 +168,15 @@ export function createScene(
           if (intersect.object !== planeMesh) {
             const voxelToRemove = intersect.object;
 
-            // send data to backend -> triggers deletion on frontend when ws recieves msg
-            deleteVoxel(
+            // database stores in grid coords --> need to convert to grid coords before sending to backend
+            const { gridX, gridY, gridZ } = worldToGridCoordinates(
               voxelToRemove.position.x,
               voxelToRemove.position.y,
               voxelToRemove.position.z
             );
+
+            // send data to backend -> triggers deletion on frontend when ws recieves msg
+            deleteVoxel(gridX, gridY, gridZ);
 
             // handles object deletion when server not running
             if (!isServerOnlineRef.current) {
@@ -208,13 +212,15 @@ export function createScene(
           // ensure the y-coord is above the plane
           voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
 
-          // send data to backend -> triggers block placement on frontend when ws recieves data
-          placeVoxel(
+          // database stores coords in grid --> need to convert to grid coords
+          const { gridX, gridY, gridZ } = worldToGridCoordinates(
             voxel.position.x,
             voxel.position.y,
-            voxel.position.z,
-            currColorRef.current
+            voxel.position.z
           );
+
+          // send data to backend -> triggers block placement on frontend when ws recieves data
+          placeVoxel(gridX, gridY, gridZ, currColorRef.current);
 
           // handles object creation when server not running
           if (!isServerOnlineRef.current) {

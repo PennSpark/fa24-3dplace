@@ -1,7 +1,8 @@
 // determines side of voxel blocks
 // needs to be bigger because it fixes glitchyness with mouse raycast
 export const gridCellSize = 25;
-export const gridSideLength = 100;
+export const gridSideLength = 128;
+export const maxZHeight = 32;
 
 export const dimensions = {
   l: gridCellSize * gridSideLength,

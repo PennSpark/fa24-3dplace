@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, mongoose } from "mongoose";
 
-const VoxelSchema = new mongoose.Schema(
+const VoxelSchema = new Schema(
   {
     x: {
       type: Number,
@@ -33,4 +33,5 @@ const VoxelSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Voxel", VoxelSchema);
+const Voxel = mongoose.model("Voxel", VoxelSchema);
+export default Voxel;

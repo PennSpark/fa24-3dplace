@@ -14,6 +14,7 @@ import { useStateController } from "./helpers/StateProvider.js";
 import ModeSlider from "./components/ModeSlider";
 import { handleUI } from "./scripts/UIHandler.js";
 import useWebSocket from "react-use-websocket";
+import { gridToWorldCoordinates } from "./helpers/changeCoords.js";
 
 function Canvas(props: { username: string }) {
   // access state variables through global provider
@@ -67,6 +68,8 @@ function Canvas(props: { username: string }) {
   }) => {
     if (voxel != null) {
       const { x, y, z, color } = voxel;
+      // database stores coords in grid --> need to convert to world three.js coords
+      const { worldX, worldY, worldZ } = gridToWorldCoordinates(x, y, z);
 
       const voxelGeometry = new THREE.BoxGeometry(
         gridCellSize,
@@ -81,7 +84,7 @@ function Canvas(props: { username: string }) {
       const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
       voxelMesh.name = "voxel";
 
-      voxelMesh.position.set(x, y, z);
+      voxelMesh.position.set(worldX, worldY, worldZ);
       sceneRef.current?.add(voxelMesh);
 
       sceneObjectsRef.current?.push(voxelMesh);
@@ -103,12 +106,19 @@ function Canvas(props: { username: string }) {
 
   // function to remove voxel from scene
   function removeVoxelFromScene(voxel: { x: any; y: any; z: any }) {
+    // database stores coords in grid --> need to convert to world coords
+    const { worldX, worldY, worldZ } = gridToWorldCoordinates(
+      voxel.x,
+      voxel.y,
+      voxel.z
+    );
+
     // find the voxel object in the sceneObjectsRef array based on its position
     const voxelToRemove = sceneObjectsRef.current.find(
       (obj) =>
-        obj.position.x === voxel.x &&
-        obj.position.y === voxel.y &&
-        obj.position.z === voxel.z
+        obj.position.x === worldX &&
+        obj.position.y === worldY &&
+        obj.position.z === worldZ
     );
 
     if (voxelToRemove) {

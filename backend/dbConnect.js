@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const uri = process.env.MONGO_URL || "mongodb://localhost:27017/3dplace";
+import { connect } from "mongoose";
+const uri = process.env.DB_URL || "mongodb://localhost:27017/3dplace";
 
 const dbConnect = async () => {
   try {
-    await mongoose.connect(uri, {
+    await connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -13,4 +13,4 @@ const dbConnect = async () => {
   }
 };
 
-module.exports = dbConnect;
+export default dbConnect;
