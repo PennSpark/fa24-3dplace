@@ -1,5 +1,10 @@
 import * as THREE from "three";
-import { dimensions, gridCellSize, gridSideLength } from "../helpers/Constants";
+import {
+  BOARD_SIZE,
+  DIMENSIONS,
+  MAX_HEIGHT,
+  VOXEL_SIZE,
+} from "../helpers/Constants";
 import { MutableRefObject } from "react";
 import { worldToGridCoordinates } from "../helpers/changeCoords";
 
@@ -17,7 +22,7 @@ export function createScene(
 ) {
   // create 2D plane mesh
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(dimensions.l, dimensions.w),
+    new THREE.PlaneGeometry(DIMENSIONS.l, DIMENSIONS.w),
     new THREE.MeshBasicMaterial({ side: THREE.FrontSide, visible: false })
   );
 
@@ -28,14 +33,14 @@ export function createScene(
   sceneObjects.current.push(planeMesh);
 
   // create grid overlay on plane
-  const grid = new THREE.GridHelper(dimensions.l, gridSideLength);
+  const grid = new THREE.GridHelper(DIMENSIONS.l, BOARD_SIZE);
   scene.add(grid);
 
   // --- voxel block mesh ---
   const voxelGeometry = new THREE.BoxGeometry(
-    gridCellSize,
-    gridCellSize,
-    gridCellSize
+    VOXEL_SIZE,
+    VOXEL_SIZE,
+    VOXEL_SIZE
   );
 
   // --- voxel highlight mesh ---
@@ -123,17 +128,22 @@ export function createScene(
             .copy(intersect.point)
             .add(intersect.face.normal);
         voxelPreviewMesh.position
-          .divideScalar(gridCellSize)
+          .divideScalar(VOXEL_SIZE)
           .floor()
-          .multiplyScalar(gridCellSize)
-          .addScalar(gridCellSize / 2);
+          .multiplyScalar(VOXEL_SIZE)
+          .addScalar(VOXEL_SIZE / 2);
       }
 
       // ensure the y-coord is above the plane
       voxelPreviewMesh.position.y = Math.max(
         voxelPreviewMesh.position.y,
-        gridCellSize / 2
+        VOXEL_SIZE / 2
       );
+
+      // keep below height limit and
+      if (voxelPreviewMesh.position.y > MAX_HEIGHT) {
+        voxelPreviewMesh.position.y = MAX_HEIGHT - VOXEL_SIZE / 2;
+      }
     }
   }
 
@@ -204,13 +214,18 @@ export function createScene(
           if (intersect.face)
             voxel.position.copy(intersect.point).add(intersect.face.normal);
           voxel.position
-            .divideScalar(gridCellSize)
+            .divideScalar(VOXEL_SIZE)
             .floor()
-            .multiplyScalar(gridCellSize)
-            .addScalar(gridCellSize / 2);
+            .multiplyScalar(VOXEL_SIZE)
+            .addScalar(VOXEL_SIZE / 2);
 
           // ensure the y-coord is above the plane
-          voxel.position.y = Math.max(voxel.position.y, gridCellSize / 2);
+          voxel.position.y = Math.max(voxel.position.y, VOXEL_SIZE / 2);
+
+          // keep below height limit
+          if (voxel.position.y > MAX_HEIGHT) {
+            voxel.position.y = MAX_HEIGHT - VOXEL_SIZE / 2;
+          }
 
           // database stores coords in grid --> need to convert to grid coords
           const { gridX, gridY, gridZ } = worldToGridCoordinates(

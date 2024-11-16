@@ -6,6 +6,7 @@ import url from "url";
 import Voxel from "./models/Voxel.js"; // mongoDB model for voxel data
 import redis from "redis";
 import dbConnect from "./dbConnect.js";
+import { deserializeVoxels, getSerializedVoxels } from "./serializer.js";
 
 // initialize server
 const server = http.createServer();
@@ -23,18 +24,31 @@ await dbConnect();
 
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
-const voxelData = []; // local websocket copy of all voxels on canvas - pull from mongo on init
 let isDatabaseOnline = false;
 
 // Redis constants
 const REDIS_BITFIELD_KEY = "board";
 
-// initialize Redis with data from MongoDB
+// local server copy of all voxels on canvas - pull from mongo on init
+const voxelData = [];
+
+// initialize local server data, pulling from mongoDB
 const initializeVoxelData = async () => {
   try {
-    const voxels = await Voxel.find({}); // fetch all voxels from MongoDB
-    // const binaryVoxel = getSerializedVoxels(voxels); // binary rep of voxel data
-    // redisClient.setBit(REDIS_BITFIELD_KEY, offset, binaryVoxel);
+    // fetch all voxels from MongoDB (not deleted)
+    const voxels = await Voxel.find({ color: { $ne: "transparent" } });
+
+    // get the binary representation of the voxels
+    const binaryVoxels = await getSerializedVoxels(voxels);
+    const vxs = await deserializeVoxels(binaryVoxels);
+    vxs.forEach((vx) => {
+      console.log("voxel x: " + vx.x);
+      console.log("voxel y: " + vx.y);
+      console.log("voxel z: " + vx.z);
+      console.log("voxel color: " + vx.color);
+    });
+    // redisClient.setBit(REDIS_BITFIELD_KEY, offset, binaryVoxels);
+
     voxelData.push(...voxels);
     console.log("Voxel data initialized from MongoDB.");
     isDatabaseOnline = true;
@@ -59,7 +73,6 @@ const handleMessage = async (bytes, uuid) => {
     // remember we define {} format of data
     if (data.type === "NEW_VOXEL") {
       const { x, y, z, color, creatorName, timeCreated } = data;
-      // const username = users[uuid].username;
 
       const newVoxel = {
         x,
@@ -82,7 +95,7 @@ const handleMessage = async (bytes, uuid) => {
     }
 
     if (data.type === "DELETE_VOXEL") {
-      const { x, y, z } = data; // extra the position of the voxel to delete
+      const { x, y, z, color, creatorName, timeCreated } = data; // extract the position of the voxel to delete
 
       // find voxel from the local data on server
       const index = voxelData.findIndex(
@@ -90,11 +103,21 @@ const handleMessage = async (bytes, uuid) => {
       );
 
       if (index !== -1) {
+        // store transparent voxel to keep track of blocks that have been deleted
+        const transparentVoxel = {
+          x,
+          y,
+          z,
+          color,
+          creatorName,
+          timeCreated,
+        };
+
+        // storing transparent voxel for memory purposes
+        if (isDatabaseOnline) await Voxel.create(transparentVoxel);
+
         // remove the voxel from the local data on server
         const deletedVoxel = voxelData.splice(index, 1)[0];
-
-        // delete from mongodb
-        if (isDatabaseOnline) await Voxel.deleteOne({ x, y, z });
 
         // broadcast the voxel deletion to all clients
         const message = { type: "DELETE_VOXEL", voxel: deletedVoxel };

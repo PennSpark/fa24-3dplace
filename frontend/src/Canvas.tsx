@@ -4,8 +4,8 @@ import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
 import { ViewportGizmo } from "three-viewport-gizmo";
 import {
-  gridCellSize,
   viewportGizmoOptions,
+  VOXEL_SIZE,
   WEB_SOCKET_URL,
 } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
@@ -72,9 +72,9 @@ function Canvas(props: { username: string }) {
       const { worldX, worldY, worldZ } = gridToWorldCoordinates(x, y, z);
 
       const voxelGeometry = new THREE.BoxGeometry(
-        gridCellSize,
-        gridCellSize,
-        gridCellSize
+        VOXEL_SIZE,
+        VOXEL_SIZE,
+        VOXEL_SIZE
       );
 
       const colorDecimal = parseInt(color.replace("#", ""), 16);
@@ -139,6 +139,9 @@ function Canvas(props: { username: string }) {
       x,
       y,
       z,
+      color: "transparent",
+      creatorName: props.username,
+      timeCreated: Date.now(),
     });
   };
 

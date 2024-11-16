@@ -17,7 +17,6 @@ const VoxelSchema = new Schema(
     color: {
       type: String,
       required: true,
-      match: /^#([0-9A-F]{3}){1,2}$/i, // regex to validate hex color codes
     },
     creatorName: {
       type: String,
