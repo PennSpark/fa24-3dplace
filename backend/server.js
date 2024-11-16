@@ -6,26 +6,46 @@ import url from "url";
 import Voxel from "./models/Voxel.js"; // mongoDB model for voxel data
 import redis from "redis";
 import dbConnect from "./dbConnect.js";
-import { deserializeVoxels, getSerializedVoxels } from "./serializer.js";
+import {
+  addSerializedVoxel,
+  colorsToBin,
+  deleteSerializedVoxel,
+  deserializeVoxels,
+  getOffset,
+  getSerializedVoxels,
+} from "./serializer.js";
 
 // initialize server
 const server = http.createServer();
 const wsServer = new WebSocketServer({ server });
 const port = process.env.SERVER_PORT || 8000;
 
-// connect to redis
-const redisClient = redis.createClient(process.env.REDIS_URL);
-redisClient.on("ready", () => console.error("Connected to  Redis"));
-redisClient.on("error", (err) => console.error("Redis error:", err));
-await redisClient.connect();
+// connect to Redis
 const REDIS_BITFIELD_KEY = "board";
+let isRedisOnline = false;
+let redisClient;
+let binaryVoxelBoard;
+
+const connectToRedis = async () => {
+  try {
+    redisClient = redis.createClient({ url: process.env.REDIS_URL });
+    await redisClient.connect();
+    isRedisOnline = true; // redis is online and connected
+  } catch (err) {
+    isRedisOnline = false; // redis connection failed
+  }
+};
+
+connectToRedis().catch((err) => {
+  console.log("Redis failed init");
+});
 
 // connect to database
-await dbConnect();
+let isDatabaseOnline = false;
+await dbConnect().then((isDatabaseOnline = true));
 
 const connections = {}; // keep track of current connections - stores lots of other metadata
 const users = {}; // keep track of users - stores our own data that we care about
-let isDatabaseOnline = false;
 
 // local server copy of all voxels on canvas - pull from mongo on init
 const voxelData = [];
@@ -39,59 +59,65 @@ const voxelData = [];
 const initializeVoxelData = async () => {
   try {
     const start = Date.now();
-    // fetch all most recent state of voxels from MongoDB
-    const pipeline = [
-      {
-        $sort: { timeCreated: -1 }, // sort by most recent first
-      },
-      {
-        $group: {
-          _id: { x: "$x", y: "$y", z: "$z" },
-          x: { $first: "$x" },
-          y: { $first: "$y" },
-          z: { $first: "$z" },
-          color: { $first: "$color" },
-          creatorName: { $first: "$creatorName" },
-          timeCreated: { $first: "$timeCreated" },
+
+    // try fetching data from redis cache
+    try {
+      if (isRedisOnline) {
+        binaryVoxelBoard = await redisClient.get(REDIS_BITFIELD_KEY);
+      }
+    } catch (err) {
+      console.error("Error fetching from Redis:", err);
+      binaryVoxelBoard = null;
+    }
+
+    if (binaryVoxelBoard) {
+      // if data is found then deserialize and update voxelData[]
+      const vxs = await deserializeVoxels(binaryVoxelBoard);
+      voxelData.push(...vxs);
+      console.log(`Voxel data initialized from Redis: ${vxs.length} voxels.`);
+    } else {
+      // if no data, fetch from MongoDB
+      console.log("Voxel data not found from Redis. Fetching from Mongo");
+      const pipeline = [
+        {
+          $sort: { timeCreated: -1 }, // sort by most recent first
         },
-      },
-      {
-        $match: { color: { $ne: "transparent" } }, // exclude deleted voxels
-      },
-    ];
-    const voxels = await Voxel.aggregate(pipeline);
+        {
+          $group: {
+            _id: { x: "$x", y: "$y", z: "$z" },
+            x: { $first: "$x" },
+            y: { $first: "$y" },
+            z: { $first: "$z" },
+            color: { $first: "$color" },
+            creatorName: { $first: "$creatorName" },
+            timeCreated: { $first: "$timeCreated" },
+          },
+        },
+        {
+          $match: { color: { $ne: "transparent" } }, // exclude deleted voxels
+        },
+      ];
+      const vxs = await Voxel.aggregate(pipeline);
+
+      // serialize and cache binary voxel data into Redis if it is online
+      if (isRedisOnline) {
+        binaryVoxelBoard = await getSerializedVoxels(vxs);
+        await redisClient.set(REDIS_BITFIELD_KEY, binaryVoxelBoard);
+        console.log("Set binary data in Redis.");
+      }
+      // load for local server use
+      voxelData.push(...vxs);
+      console.log("Voxel data initialized from MongoDB.");
+    }
 
     // ---- SIMULATION TIMELAPSE CODE ----
     // allVoxels = await Voxel.find({}).sort({ timeCreated: 1 });
     // console.log("Voxel data initialized:", allVoxels.length, "voxels fetched.");
     // ---- SIMULATION TIMELAPSE CODE ----
 
-    // get the binary representation of the voxels
-    const binaryVoxels = await getSerializedVoxels(voxels);
-    // Store the binary data in Redis
-    await redisClient.set(REDIS_BITFIELD_KEY, binaryVoxels);
-    // Retrieve the binary data from Redis
-    const redisVoxels = await redisClient.get(REDIS_BITFIELD_KEY);
-    console.log("length of bits: " + redisVoxels.length); // Logs the raw binary data stored in Redis
-    // Deserialize the voxel data
-    const vxs = await deserializeVoxels(redisVoxels);
-    console.log("no of voxels : " + vxs.length);
-    // Iterate over the deserialized voxel data and log the details
-    vxs.forEach((vx) => {
-      console.log("voxel x: " + vx.x);
-      console.log("voxel y: " + vx.y);
-      console.log("voxel z: " + vx.z);
-      console.log("voxel color: " + vx.color);
-    });
-
-    voxelData.push(...vxs);
-    console.log("Voxel data initialized from MongoDB.");
-
     const end = Date.now();
     const qTime = end - start;
     console.log(`Task processed after ${qTime} ms`);
-
-    isDatabaseOnline = true;
   } catch (error) {
     console.error("Error initializing voxel data:", error);
   }
@@ -129,6 +155,15 @@ const handleMessage = async (bytes, uuid) => {
       // locally push new voxel created
       voxelData.push(newVoxel);
 
+      // update and cache to redis
+      if (isRedisOnline) {
+        try {
+          await updateBinaryBoard(newVoxel);
+        } catch (error) {
+          console.error("Error updating Redis cache with new voxel:", error);
+        }
+      }
+
       // defining {} format of data
       const message = { type: "NEW_VOXEL", voxel: newVoxel };
       broadcast(message);
@@ -158,6 +193,16 @@ const handleMessage = async (bytes, uuid) => {
 
         // remove the voxel from the local data on server
         const deletedVoxel = voxelData.splice(index, 1)[0];
+
+        // update and cache to redis
+        if (isRedisOnline) {
+          try {
+            // TODO FIX UPDATE BINARYBOARD ITS THE COMMAND SET BITFIELD THATS WRONG
+            // await updateBinaryBoard(deletedVoxel);
+          } catch (error) {
+            console.error("Error updating Redis cache with new voxel:", error);
+          }
+        }
 
         // broadcast the voxel deletion to all clients
         const message = { type: "DELETE_VOXEL", voxel: deletedVoxel };
@@ -215,6 +260,34 @@ server.listen(port, () => {
   console.log("websocket server is running on port: " + port);
   initializeVoxelData(); // populate voxelData at server start
 });
+
+const updateBinaryBoard = async (voxel) => {
+  const offsetNumber = getOffset(voxel.x, voxel.y, voxel.z);
+  let colorBinary = colorsToBin[voxel.color];
+  console.log("offset : " + (Math.floor(offsetNumber / 4) + 1));
+  console.log("color binary decimal: " + parseInt(colorBinary.toString(), 2));
+
+  const start = Date.now();
+
+  // Update the board state using the BITFIELD command to set the 4 bits at the calculated offset
+  await redisClient.bitField(REDIS_BITFIELD_KEY, [
+    {
+      operation: "SET",
+      encoding: "u4",
+      offset: Math.floor(offsetNumber / 4) + 1,
+      value: parseInt(colorBinary, 2),
+    },
+  ]);
+
+  let b = await redisClient.get(REDIS_BITFIELD_KEY);
+  await deserializeVoxels(b);
+
+  const end = Date.now();
+  const qtime = end - start;
+  console.log("process took " + qtime + " ms");
+
+  console.log("Updated Redis:");
+};
 
 // ---- SIMULATION TIMELAPSE CODE ---- ///
 // have to comment out some initializeVoxelData() code

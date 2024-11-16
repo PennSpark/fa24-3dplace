@@ -25,9 +25,9 @@ export const binToColors = Object.fromEntries(
 );
 
 // helper function to calculate the offset for a voxel
-function getOffset(x, y, z) {
+export const getOffset = (x, y, z) => {
   return x + BOARD_SIZE * z + BOARD_SIZE * BOARD_SIZE * y;
-}
+};
 
 // take collection of objects and return bit representation of board
 export const getSerializedVoxels = async (voxels) => {
@@ -65,7 +65,6 @@ export const deserializeVoxels = (binaryVoxels) => {
     // Calculate x, y, z based on the offset (reverse of the getOffset function)
     const linearIndex = offset / 4; // Each voxel takes 4 bits, so divide by 4 to get the index
 
-    // TODO y-value is screwed but x and z work
     const y = Math.floor(linearIndex / (BOARD_SIZE * BOARD_SIZE)); // Find which "layer" of height y the index is in
     const remainingAfterY = linearIndex % (BOARD_SIZE * BOARD_SIZE);
 
@@ -74,9 +73,44 @@ export const deserializeVoxels = (binaryVoxels) => {
     // Convert the binary color to a hex color using the binToColors map
     const color = binToColors[colorBinary];
 
+    console.log("voxel x: " + x);
+    console.log("voxel y: " + y);
+    console.log("voxel z: " + z);
+    console.log("voxel color: " + color);
+
     // Push the voxel object to the voxelData array
     voxelData.push({ x, y, z, color });
   }
 
   return voxelData;
+};
+
+export const addSerializedVoxel = (currentBoard, voxel) => {
+  // get binary info for new voxel
+  console.log("voxel color: " + voxel.color);
+  const colorBinary = colorsToBin[voxel.color];
+  const offset = getOffset(voxel.x, voxel.y, voxel.z);
+
+  // update current board binary with new voxel
+  const updatedBoard = [];
+  for (let i = 0; i < currentBoard.length; i += 4) {
+    updatedBoard.push(currentBoard.slice(i, i + 4));
+  }
+  updatedBoard[offset] = colorBinary;
+
+  return updatedBoard.join("");
+};
+
+export const deleteSerializedVoxel = (currentBoard, voxel) => {
+  // get location for voxel marked for deletion
+  const offset = getOffset(voxel.x, voxel.y, voxel.z);
+
+  // update current board binary with "1111" transparent voxel
+  const updatedBoard = [];
+  for (let i = 0; i < currentBoard.length; i += 4) {
+    updatedBoard.push(currentBoard.slice(i, i + 4));
+  }
+  updatedBoard[offset] = "1111";
+
+  return updatedBoard.join("");
 };
