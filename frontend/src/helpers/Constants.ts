@@ -9,8 +9,6 @@ export const MAX_WIDTH = BOARD_SIZE * VOXEL_SIZE;
 export const MIN_XZ = -MAX_WIDTH / 2 + VOXEL_SIZE / 2;
 export const MAX_XZ = MAX_WIDTH / 2 - VOXEL_SIZE / 2;
 
-export const WEB_SOCKET_URL = "ws://127.0.0.1:8000";
-
 export const DIMENSIONS = {
   l: VOXEL_SIZE * BOARD_SIZE,
   w: VOXEL_SIZE * BOARD_SIZE,

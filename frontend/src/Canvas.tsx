@@ -3,11 +3,7 @@ import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
 import { ViewportGizmo } from "three-viewport-gizmo";
-import {
-  viewportGizmoOptions,
-  VOXEL_SIZE,
-  WEB_SOCKET_URL,
-} from "./helpers/Constants.js";
+import { viewportGizmoOptions, VOXEL_SIZE } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
 import Toolbar from "./components/Toolbar";
 import { useStateController } from "./helpers/StateProvider.js";
@@ -33,6 +29,8 @@ function Canvas(props: { username: string }) {
   const sceneRef = useRef<THREE.Scene | null>(null);
   // keep updated list of all rendered objects
   const sceneObjectsRef = useRef<any[]>([]);
+
+  const WEB_SOCKET_URL = import.meta.env.VITE_API_URL || "ws://127.0.0.1:8000";
 
   // establish web socket connection
   const { sendJsonMessage, lastMessage } = useWebSocket(WEB_SOCKET_URL, {
