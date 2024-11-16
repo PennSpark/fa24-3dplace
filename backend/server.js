@@ -186,32 +186,32 @@ server.listen(port, () => {
 
 // ---- SIMULATION TIMELAPSE CODE ---- ///
 // have to comment out some initializeVoxelData() code
-const fetchVoxelData = async () => {
-  try {
-    if (counter >= allVoxels.length) {
-      console.log("All voxels have been broadcasted.");
-      return;
-    }
+// const fetchVoxelData = async () => {
+//   try {
+//     if (counter >= allVoxels.length) {
+//       console.log("All voxels have been broadcasted.");
+//       return;
+//     }
 
-    let v = allVoxels[counter];
-    let message;
-    if (v.color === "transparent") {
-      message = { type: "DELETE_VOXEL", voxel: v };
-    } else {
-      message = { type: "NEW_VOXEL", voxel: v };
-    }
-    console.log("Broadcasting voxel:", message);
-    broadcast(message);
-    counter++;
-  } catch (error) {
-    console.error("Error fetching voxel data:", error);
-  }
-};
+//     let v = allVoxels[counter];
+//     let message;
+//     if (v.color === "transparent") {
+//       message = { type: "DELETE_VOXEL", voxel: v };
+//     } else {
+//       message = { type: "NEW_VOXEL", voxel: v };
+//     }
+//     console.log("Broadcasting voxel:", message);
+//     broadcast(message);
+//     counter++;
+//   } catch (error) {
+//     console.error("Error fetching voxel data:", error);
+//   }
+// };
 
-// init data and run fetch voxel every REFRESH_RATE
-const REFRESH_RATE = 250; // milliseconds
-(async () => {
-  await initializeVoxelData();
-  setInterval(fetchVoxelData, REFRESH_RATE);
-})();
+// // init data and run fetch voxel every REFRESH_RATE
+// const REFRESH_RATE = 250; // milliseconds
+// (async () => {
+//   await initializeVoxelData();
+//   setInterval(fetchVoxelData, REFRESH_RATE);
+// })();
 // ---- SIMULATION TIMELAPSE CODE ---- ///
