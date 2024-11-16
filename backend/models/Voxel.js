@@ -32,5 +32,8 @@ const VoxelSchema = new Schema(
   }
 );
 
+// Add a compound index for x, y, z for faster lookup
+VoxelSchema.index({ x: 1, y: 1, z: 1, timeCreated: -1 });
+
 const Voxel = mongoose.model("Voxel", VoxelSchema);
 export default Voxel;

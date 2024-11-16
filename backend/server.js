@@ -38,8 +38,27 @@ const voxelData = [];
 // initialize local server data, pulling from mongoDB
 const initializeVoxelData = async () => {
   try {
-    // fetch all voxels from MongoDB (not deleted)
-    const voxels = await Voxel.find({ color: { $ne: "transparent" } });
+    // fetch all most recent state of voxels from MongoDB
+    const pipeline = [
+      {
+        $sort: { timeCreated: -1 }, // sort by most recent first
+      },
+      {
+        $group: {
+          _id: { x: "$x", y: "$y", z: "$z" },
+          x: { $first: "$x" },
+          y: { $first: "$y" },
+          z: { $first: "$z" },
+          color: { $first: "$color" },
+          creatorName: { $first: "$creatorName" },
+          timeCreated: { $first: "$timeCreated" },
+        },
+      },
+      {
+        $match: { color: { $ne: "transparent" } }, // exclude deleted voxels
+      },
+    ];
+    const voxels = await Voxel.aggregate(pipeline);
 
     // ---- SIMULATION TIMELAPSE CODE ----
     // allVoxels = await Voxel.find({}).sort({ timeCreated: 1 });
