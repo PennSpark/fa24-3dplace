@@ -3,6 +3,8 @@ import {
   BOARD_SIZE,
   DIMENSIONS,
   MAX_HEIGHT,
+  MAX_XZ,
+  MIN_XZ,
   VOXEL_SIZE,
 } from "../helpers/Constants";
 import { MutableRefObject } from "react";
@@ -89,6 +91,11 @@ export function createScene(
     window.removeEventListener("resize", onWindowResize);
   };
 
+  // helper function to restrict position.x.y.z values
+  function clamp(value: number, min: number, max: number) {
+    return Math.min(Math.max(value, min), max);
+  }
+
   function onMouseMove(event: { clientX: number; clientY: number }) {
     // toggle visibility of the voxel preview mesh
     // if transparent or not in build mode then don't show
@@ -134,16 +141,24 @@ export function createScene(
           .addScalar(VOXEL_SIZE / 2);
       }
 
-      // ensure the y-coord is above the plane
-      voxelPreviewMesh.position.y = Math.max(
+      // clamp pos.y so that it stays above plane and below MAX_HEIGHT limit
+      voxelPreviewMesh.position.y = clamp(
         voxelPreviewMesh.position.y,
-        VOXEL_SIZE / 2
+        VOXEL_SIZE / 2,
+        MAX_HEIGHT - VOXEL_SIZE / 2
       );
 
-      // keep below height limit and
-      if (voxelPreviewMesh.position.y > MAX_HEIGHT) {
-        voxelPreviewMesh.position.y = MAX_HEIGHT - VOXEL_SIZE / 2;
-      }
+      voxelPreviewMesh.position.x = clamp(
+        voxelPreviewMesh.position.x,
+        MIN_XZ,
+        MAX_XZ
+      );
+
+      voxelPreviewMesh.position.z = clamp(
+        voxelPreviewMesh.position.z,
+        MIN_XZ,
+        MAX_XZ
+      );
     }
   }
 
@@ -219,13 +234,16 @@ export function createScene(
             .multiplyScalar(VOXEL_SIZE)
             .addScalar(VOXEL_SIZE / 2);
 
-          // ensure the y-coord is above the plane
-          voxel.position.y = Math.max(voxel.position.y, VOXEL_SIZE / 2);
+          // clamp pos.y so that it stays above plane and below MAX_HEIGHT limit
+          voxel.position.y = clamp(
+            voxel.position.y,
+            VOXEL_SIZE / 2,
+            MAX_HEIGHT - VOXEL_SIZE / 2
+          );
 
-          // keep below height limit
-          if (voxel.position.y > MAX_HEIGHT) {
-            voxel.position.y = MAX_HEIGHT - VOXEL_SIZE / 2;
-          }
+          voxel.position.x = clamp(voxel.position.x, MIN_XZ, MAX_XZ);
+
+          voxel.position.z = clamp(voxel.position.z, MIN_XZ, MAX_XZ);
 
           // database stores coords in grid --> need to convert to grid coords
           const { gridX, gridY, gridZ } = worldToGridCoordinates(
