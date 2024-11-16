@@ -38,6 +38,7 @@ const voxelData = [];
 // initialize local server data, pulling from mongoDB
 const initializeVoxelData = async () => {
   try {
+    const start = Date.now();
     // fetch all most recent state of voxels from MongoDB
     const pipeline = [
       {
@@ -66,18 +67,30 @@ const initializeVoxelData = async () => {
     // ---- SIMULATION TIMELAPSE CODE ----
 
     // get the binary representation of the voxels
-    // const binaryVoxels = await getSerializedVoxels(voxels);
-    // const vxs = await deserializeVoxels(binaryVoxels);
-    // vxs.forEach((vx) => {
-    //   console.log("voxel x: " + vx.x);
-    //   console.log("voxel y: " + vx.y);
-    //   console.log("voxel z: " + vx.z);
-    //   console.log("voxel color: " + vx.color);
-    // });
-    // redisClient.setBit(REDIS_BITFIELD_KEY, offset, binaryVoxels);
+    const binaryVoxels = await getSerializedVoxels(voxels);
+    // Store the binary data in Redis
+    await redisClient.set(REDIS_BITFIELD_KEY, binaryVoxels);
+    // Retrieve the binary data from Redis
+    const redisVoxels = await redisClient.get(REDIS_BITFIELD_KEY);
+    console.log("length of bits: " + redisVoxels.length); // Logs the raw binary data stored in Redis
+    // Deserialize the voxel data
+    const vxs = await deserializeVoxels(redisVoxels);
+    console.log("no of voxels : " + vxs.length);
+    // Iterate over the deserialized voxel data and log the details
+    vxs.forEach((vx) => {
+      console.log("voxel x: " + vx.x);
+      console.log("voxel y: " + vx.y);
+      console.log("voxel z: " + vx.z);
+      console.log("voxel color: " + vx.color);
+    });
 
-    voxelData.push(...voxels);
+    voxelData.push(...vxs);
     console.log("Voxel data initialized from MongoDB.");
+
+    const end = Date.now();
+    const qTime = end - start;
+    console.log(`Task processed after ${qTime} ms`);
+
     isDatabaseOnline = true;
   } catch (error) {
     console.error("Error initializing voxel data:", error);

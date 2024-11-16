@@ -91,6 +91,9 @@ export function createScene(
     window.removeEventListener("resize", onWindowResize);
   };
 
+  // keep track of all voxel positions to ensure no duplicate voxels are placed
+  const voxelPositions = new Set<string>();
+
   // helper function to restrict position.x.y.z values
   function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
@@ -148,6 +151,7 @@ export function createScene(
         MAX_HEIGHT - VOXEL_SIZE / 2
       );
 
+      // clamp pos.x pos.z so that it doesn't extend outside board
       voxelPreviewMesh.position.x = clamp(
         voxelPreviewMesh.position.x,
         MIN_XZ,
@@ -203,6 +207,9 @@ export function createScene(
             // send data to backend -> triggers deletion on frontend when ws recieves msg
             deleteVoxel(gridX, gridY, gridZ);
 
+            // delete from voxel postions set
+            voxelPositions.delete(`${gridX},${gridY},${gridZ}`);
+
             // handles object deletion when server not running
             if (!isServerOnlineRef.current) {
               scene.remove(voxelToRemove);
@@ -252,13 +259,16 @@ export function createScene(
             voxel.position.z
           );
 
-          // send data to backend -> triggers block placement on frontend when ws recieves data
-          placeVoxel(gridX, gridY, gridZ, currColorRef.current);
-
-          // handles object creation when server not running
-          if (!isServerOnlineRef.current) {
-            scene.add(voxel);
-            sceneObjects.current.push(voxel);
+          // check if voxel already exists at specified location
+          if (!voxelPositions.has(`${gridX},${gridY},${gridZ}`)) {
+            placeVoxel(gridX, gridY, gridZ, currColorRef.current); // proceed with placement
+            voxelPositions.add(`${gridX},${gridY},${gridZ}`); // add voxel pos to set to keep track
+            if (!isServerOnlineRef.current) {
+              scene.add(voxel);
+              sceneObjects.current.push(voxel);
+            }
+          } else {
+            console.log("Voxel already exists at this position!");
           }
         }
       }

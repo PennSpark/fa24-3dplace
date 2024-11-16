@@ -26,7 +26,7 @@ export const binToColors = Object.fromEntries(
 
 // helper function to calculate the offset for a voxel
 function getOffset(x, y, z) {
-  return x + BOARD_SIZE * z + BOARD_SIZE * BOARD_HEIGHT * y;
+  return x + BOARD_SIZE * z + BOARD_SIZE * BOARD_SIZE * y;
 }
 
 // take collection of objects and return bit representation of board
@@ -42,7 +42,6 @@ export const getSerializedVoxels = async (voxels) => {
 
     // store this 4-bit at calculated the offset based on the voxel's position
     const offset = getOffset(v.x, v.y, v.z);
-    console.log("offset: " + offset);
     binaryVoxelsArray[offset] = colorBinary;
   });
 
@@ -66,8 +65,9 @@ export const deserializeVoxels = (binaryVoxels) => {
     // Calculate x, y, z based on the offset (reverse of the getOffset function)
     const linearIndex = offset / 4; // Each voxel takes 4 bits, so divide by 4 to get the index
 
-    const y = Math.floor(linearIndex / (BOARD_SIZE * BOARD_HEIGHT)) - 1; // Find which "layer" of height y the index is in
-    const remainingAfterY = linearIndex % (BOARD_SIZE * BOARD_HEIGHT);
+    // TODO y-value is screwed but x and z work
+    const y = Math.floor(linearIndex / (BOARD_SIZE * BOARD_SIZE)); // Find which "layer" of height y the index is in
+    const remainingAfterY = linearIndex % (BOARD_SIZE * BOARD_SIZE);
 
     const z = Math.floor(remainingAfterY / BOARD_SIZE); // Determine the depth position (z)
     const x = remainingAfterY % BOARD_SIZE; // Determine the horizontal position (x)
