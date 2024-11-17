@@ -13,7 +13,7 @@ function WelcomeScreen({ onSubmit }: any) {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">
-        Welcome to 3D r/place
+        Welcome to Penn Place
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
         <input

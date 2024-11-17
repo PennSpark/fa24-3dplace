@@ -8,10 +8,8 @@ import redis from "redis";
 import dbConnect from "./dbConnect.js";
 import {
   addSerializedVoxel,
-  colorsToBin,
   deleteSerializedVoxel,
   deserializeVoxels,
-  getOffset,
   getSerializedVoxels,
 } from "./serializer.js";
 
