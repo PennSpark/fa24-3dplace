@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
 import { ViewportGizmo } from "three-viewport-gizmo";
-import { viewportGizmoOptions, VOXEL_SIZE } from "./helpers/Constants.js";
 import ColorPalette from "./components/ColorPalette";
 import Toolbar from "./components/Toolbar";
 import { useStateController } from "./helpers/StateProvider.js";
@@ -11,6 +10,7 @@ import ModeSlider from "./components/ModeSlider";
 import { handleUI } from "./scripts/UIHandler.js";
 import useWebSocket from "react-use-websocket";
 import { gridToWorldCoordinates } from "./helpers/changeCoords.js";
+import { VOXEL_SIZE } from "./helpers/Constants.ts";
 
 function Canvas(props: { username: string }) {
   // access state variables through global provider
@@ -187,11 +187,93 @@ function Canvas(props: { username: string }) {
     ); // render the scene
 
     // setup viewport gizmo
-    const viewportGizmo = new ViewportGizmo(
-      camera,
-      renderer,
-      viewportGizmoOptions
-    );
+    const viewportGizmo = new ViewportGizmo(camera, renderer, {
+      placement: "bottom-left",
+      size: 150,
+      lineWidth: 3,
+      offset: {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      },
+      font: {
+        family: "helvetica",
+        weight: 900,
+      },
+      resolution: 64,
+      backgroundSphere: {
+        enabled: true,
+        color: 0,
+        opacity: 0.2,
+      },
+      x: {
+        text: "X",
+        drawLine: true,
+        border: false,
+        colors: {
+          main: "#FF2E2E",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+      y: {
+        text: "Y",
+        drawLine: true,
+        border: false,
+        colors: {
+          main: "#54F000",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+      z: {
+        text: "Z",
+        drawLine: true,
+        border: false,
+        colors: {
+          main: "#6181FF",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+      nx: {
+        text: "",
+        drawLine: false,
+        border: false,
+        colors: {
+          main: "#EE1B49",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+      ny: {
+        text: "",
+        drawLine: false,
+        border: false,
+        colors: {
+          main: "#48F000",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+      nz: {
+        text: "",
+        drawLine: false,
+        border: false,
+        colors: {
+          main: "#5451FB",
+          hover: "#FFFFFF",
+          text: "#000000",
+          hoverText: "#000000",
+        },
+      },
+    });
     viewportGizmo.target = controls.target;
 
     // listeners for viewport gizmo
