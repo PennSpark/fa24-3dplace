@@ -1,4 +1,4 @@
-const BOARD_SIZE = 128; // change board size --> needs to be powers of 2
+const BOARD_SIZE = 128; // change board size
 const BOARD_HEIGHT = 32;
 
 export const colorsToBin = {
@@ -62,21 +62,13 @@ export const deserializeVoxels = (binaryVoxels) => {
       continue;
     }
 
-    // Calculate x, y, z based on the offset (reverse of the getOffset function)
-    const linearIndex = offset / 4; // Each voxel takes 4 bits, so divide by 4 to get the index
-
-    const y = Math.floor(linearIndex / (BOARD_SIZE * BOARD_SIZE)); // Find which "layer" of height y the index is in
+    const linearIndex = offset / 4;
+    const y = Math.floor(linearIndex / (BOARD_SIZE * BOARD_SIZE));
     const remainingAfterY = linearIndex % (BOARD_SIZE * BOARD_SIZE);
+    const z = Math.floor(remainingAfterY / BOARD_SIZE);
+    const x = remainingAfterY % BOARD_SIZE;
 
-    const z = Math.floor(remainingAfterY / BOARD_SIZE); // Determine the depth position (z)
-    const x = remainingAfterY % BOARD_SIZE; // Determine the horizontal position (x)
-    // Convert the binary color to a hex color using the binToColors map
     const color = binToColors[colorBinary];
-
-    console.log("voxel x: " + x);
-    console.log("voxel y: " + y);
-    console.log("voxel z: " + z);
-    console.log("voxel color: " + color);
 
     // Push the voxel object to the voxelData array
     voxelData.push({ x, y, z, color });
@@ -86,31 +78,31 @@ export const deserializeVoxels = (binaryVoxels) => {
 };
 
 export const addSerializedVoxel = (currentBoard, voxel) => {
-  // get binary info for new voxel
-  console.log("voxel color: " + voxel.color);
-  const colorBinary = colorsToBin[voxel.color];
   const offset = getOffset(voxel.x, voxel.y, voxel.z);
+  const colorBinary = colorsToBin[voxel.color];
 
-  // update current board binary with new voxel
-  const updatedBoard = [];
-  for (let i = 0; i < currentBoard.length; i += 4) {
-    updatedBoard.push(currentBoard.slice(i, i + 4));
-  }
-  updatedBoard[offset] = colorBinary;
+  // replace the 4-bit integer based on offset w/ binary color
+  // slicing over large array is probs inefficeint
+  // maybe buffer with binary is better but idk
+  let updatedBoard =
+    currentBoard.slice(0, offset * 4) +
+    colorBinary +
+    currentBoard.slice((offset + 1) * 4);
 
-  return updatedBoard.join("");
+  return updatedBoard;
 };
 
 export const deleteSerializedVoxel = (currentBoard, voxel) => {
-  // get location for voxel marked for deletion
   const offset = getOffset(voxel.x, voxel.y, voxel.z);
+  const transparentVoxel = "1111";
 
-  // update current board binary with "1111" transparent voxel
-  const updatedBoard = [];
-  for (let i = 0; i < currentBoard.length; i += 4) {
-    updatedBoard.push(currentBoard.slice(i, i + 4));
-  }
-  updatedBoard[offset] = "1111";
+  // replace the 4-bit integer based on offset w/ transparent voxel
+  // slicing over large array is probs inefficeint
+  // maybe buffer with binary is better but idk
+  let updatedBoard =
+    currentBoard.slice(0, offset * 4) +
+    transparentVoxel +
+    currentBoard.slice((offset + 1) * 4);
 
-  return updatedBoard.join("");
+  return updatedBoard;
 };

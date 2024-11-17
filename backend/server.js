@@ -7,7 +7,9 @@ import Voxel from "./models/Voxel.js"; // mongoDB model for voxel data
 import redis from "redis";
 import dbConnect from "./dbConnect.js";
 import {
+  addSerializedVoxel,
   colorsToBin,
+  deleteSerializedVoxel,
   deserializeVoxels,
   getOffset,
   getSerializedVoxels,
@@ -70,7 +72,7 @@ const initializeVoxelData = async () => {
 
     if (binaryVoxelBoard) {
       // if data is found then deserialize and update voxelData[]
-      const vxs = await deserializeVoxels(binaryVoxelBoard);
+      const vxs = deserializeVoxels(binaryVoxelBoard);
       voxelData.push(...vxs);
       console.log(`Voxel data initialized from Redis: ${vxs.length} voxels.`);
     } else {
@@ -156,7 +158,10 @@ const handleMessage = async (bytes, uuid) => {
       // update and cache to redis
       if (isRedisOnline) {
         try {
-          await updateBinaryBoard(newVoxel);
+          // rewriting board binary to reflect voxel addition
+          // lowk using bitfield operation set or incrby or more efficient but i cant be asked
+          binaryVoxelBoard = addSerializedVoxel(binaryVoxelBoard, newVoxel);
+          redisClient.set(REDIS_BITFIELD_KEY, binaryVoxelBoard);
         } catch (error) {
           console.error("Error updating Redis cache with new voxel:", error);
         }
@@ -195,8 +200,13 @@ const handleMessage = async (bytes, uuid) => {
         // update and cache to redis
         if (isRedisOnline) {
           try {
-            // TODO FIX UPDATE BINARYBOARD ITS THE COMMAND SET BITFIELD THATS WRONG
-            // await updateBinaryBoard(deletedVoxel);
+            // rewriting board binary to reflect voxel deletion
+            // lowk using bitfield operation set or incrby or more efficient but i cant be asked
+            binaryVoxelBoard = deleteSerializedVoxel(
+              binaryVoxelBoard,
+              deletedVoxel
+            );
+            redisClient.set(REDIS_BITFIELD_KEY, binaryVoxelBoard);
           } catch (error) {
             console.error("Error updating Redis cache with new voxel:", error);
           }
@@ -258,34 +268,6 @@ server.listen(port, () => {
   console.log("websocket server is running on port: " + port);
   initializeVoxelData(); // populate voxelData at server start
 });
-
-const updateBinaryBoard = async (voxel) => {
-  const offsetNumber = getOffset(voxel.x, voxel.y, voxel.z);
-  let colorBinary = colorsToBin[voxel.color];
-  console.log("offset : " + (Math.floor(offsetNumber / 4) + 1));
-  console.log("color binary decimal: " + parseInt(colorBinary.toString(), 2));
-
-  const start = Date.now();
-
-  // Update the board state using the BITFIELD command to set the 4 bits at the calculated offset
-  await redisClient.bitField(REDIS_BITFIELD_KEY, [
-    {
-      operation: "SET",
-      encoding: "u4",
-      offset: Math.floor(offsetNumber / 4) + 1,
-      value: parseInt(colorBinary, 2),
-    },
-  ]);
-
-  let b = await redisClient.get(REDIS_BITFIELD_KEY);
-  await deserializeVoxels(b);
-
-  const end = Date.now();
-  const qtime = end - start;
-  console.log("process took " + qtime + " ms");
-
-  console.log("Updated Redis:");
-};
 
 // ---- SIMULATION TIMELAPSE CODE ---- ///
 // have to comment out some initializeVoxelData() code
