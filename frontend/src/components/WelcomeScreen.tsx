@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-function WelcomeScreen({ onSubmit }) {
+function WelcomeScreen({ onSubmit }: any) {
   const [username, setUsername] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     if (username.trim()) {
       onSubmit(username);
