@@ -7,9 +7,7 @@ import Voxel from "./models/Voxel.js"; // mongoDB model for voxel data
 import redis from "redis";
 import dbConnect from "./dbConnect.js";
 import {
-  addSerializedVoxel,
   colorsToBin,
-  deleteSerializedVoxel,
   deserializeVoxels,
   getOffset,
   getSerializedVoxels,
@@ -37,7 +35,7 @@ const connectToRedis = async () => {
 };
 
 connectToRedis().catch((err) => {
-  console.log("Redis failed init");
+  console.log("Redis failed init" + err);
 });
 
 // connect to database

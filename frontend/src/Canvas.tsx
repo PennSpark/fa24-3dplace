@@ -30,7 +30,8 @@ function Canvas(props: { username: string }) {
   // keep updated list of all rendered objects
   const sceneObjectsRef = useRef<any[]>([]);
 
-  const WEB_SOCKET_URL = import.meta.env.VITE_API_URL || "ws://127.0.0.1:8000";
+  const WEB_SOCKET_URL =
+    import.meta.env.VITE_WEB_SOCKET_URL || "ws://127.0.0.1:8000";
 
   // establish web socket connection
   const { sendJsonMessage, lastMessage } = useWebSocket(WEB_SOCKET_URL, {
