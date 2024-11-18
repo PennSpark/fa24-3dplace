@@ -13,7 +13,7 @@ function WelcomeScreen({ onSubmit }: any) {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">
-        Welcome to Penn Place
+        Welcome to Penn Place!
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
         <input
@@ -21,7 +21,7 @@ function WelcomeScreen({ onSubmit }: any) {
           placeholder="Enter your username"
           value={username}
           onChange={(e: any) => setUsername(e.target.value)}
-          className="p-2 w-64 text-base border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 w-64 text-base text-black border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         />
         <button
           type="submit"

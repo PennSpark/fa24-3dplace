@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "sync": "aws s3 sync ./dist 's3://penn.place/'",
+    "invalidate": "aws cloudfront create-invalidation --distribution-id EEHRK1N9TA7QI --paths '/*'",
     "lint": "eslint .",
     "preview": "vite preview"
   },
