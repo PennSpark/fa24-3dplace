@@ -1,12 +1,12 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/Addons.js";
+import { MyOrbitControls } from "../lib/MyOrbitControls";
 import { startCoords } from "../helpers/Constants";
 
 export function createControls(
   camera: THREE.PerspectiveCamera,
   renderer: THREE.Renderer
 ) {
-  const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new MyOrbitControls(camera, renderer.domElement);
 
   // set initial position of the camera
   camera.position.set(startCoords.x, startCoords.y, startCoords.z);
