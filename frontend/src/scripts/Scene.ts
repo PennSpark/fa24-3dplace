@@ -79,9 +79,12 @@ export function createScene(
   const mousePos = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
 
+  const mouseDelta = new THREE.Vector2();
+
   // setup input/window listeners
   window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mousedown", onMouseDown)
+  window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
 
   // function to remove listeners
