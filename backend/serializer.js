@@ -1,5 +1,5 @@
 const BOARD_SIZE = 128; // change board size
-const BOARD_HEIGHT = 32;
+const BOARD_HEIGHT = 64;
 
 export const colorsToBin = {
   "#EB1800": "0000",

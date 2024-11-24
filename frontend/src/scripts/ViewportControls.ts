@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-import { startCoords } from "../helpers/Constants";
+import {
+  CAM_MAX_DISTANCE,
+  CAM_MIN_DISTANCE,
+  START_COORDS,
+} from "../helpers/Constants";
 
 export function createControls(
   camera: THREE.PerspectiveCamera,
@@ -9,11 +13,14 @@ export function createControls(
   const controls = new OrbitControls(camera, renderer.domElement);
 
   // set initial position of the camera
-  camera.position.set(startCoords.x, startCoords.y, startCoords.z);
+  camera.position.set(START_COORDS.x, START_COORDS.y, START_COORDS.z);
   // controls.update() must be called after any manual changes to the camera's transform
   controls.update();
 
   controls.panSpeed = 1;
+  controls.maxDistance = CAM_MAX_DISTANCE;
+  controls.minDistance = CAM_MIN_DISTANCE;
+  // controls.maxPolarAngle = Math.PI / 2;
   //   controls.enableDamping = true;
   //   controls.dampingFactor = 0.075;
 

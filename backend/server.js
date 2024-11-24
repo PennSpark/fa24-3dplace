@@ -56,8 +56,6 @@ const voxelData = [];
 // initialize local server data, pulling from mongoDB
 const initializeVoxelData = async () => {
   try {
-    const start = Date.now();
-
     // try fetching data from redis cache
     try {
       if (isRedisOnline) {
@@ -112,10 +110,6 @@ const initializeVoxelData = async () => {
     // allVoxels = await Voxel.find({}).sort({ timeCreated: 1 });
     // console.log("Voxel data initialized:", allVoxels.length, "voxels fetched.");
     // ---- SIMULATION TIMELAPSE CODE ----
-
-    const end = Date.now();
-    const qTime = end - start;
-    console.log(`Task processed after ${qTime} ms`);
   } catch (error) {
     console.error("Error initializing voxel data:", error);
   }
@@ -268,7 +262,7 @@ server.listen(port, () => {
 });
 
 // ---- SIMULATION TIMELAPSE CODE ---- ///
-// have to comment out some initializeVoxelData() code
+// // have to comment out some initializeVoxelData() code
 // const fetchVoxelData = async () => {
 //   try {
 //     if (counter >= allVoxels.length) {
@@ -292,9 +286,12 @@ server.listen(port, () => {
 // };
 
 // // init data and run fetch voxel every REFRESH_RATE
-// const REFRESH_RATE = 250; // milliseconds
+// const REFRESH_RATE = 2; // milliseconds
+// const DELAY_BEFORE_FETCH = 10000;
 // (async () => {
 //   await initializeVoxelData();
-//   setInterval(fetchVoxelData, REFRESH_RATE);
+//   setTimeout(() => {
+//     setInterval(fetchVoxelData, REFRESH_RATE); // Start fetching voxel data after the delay
+//   }, DELAY_BEFORE_FETCH);
 // })();
 // ---- SIMULATION TIMELAPSE CODE ---- ///
