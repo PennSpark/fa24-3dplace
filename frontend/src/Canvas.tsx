@@ -10,6 +10,7 @@ import { handleUI } from "./scripts/UIHandler.js";
 import useWebSocket from "react-use-websocket";
 import { VOXEL_SIZE } from "./helpers/Constants.ts";
 import { gridToWorldCoordinates } from "./helpers/ChangeCoords.ts";
+import { QuickGuide } from "./components/QuickGuide.tsx";
 
 function Canvas(props: { username: string }) {
   // access state variables through global provider
@@ -268,6 +269,7 @@ function Canvas(props: { username: string }) {
 
   return (
     <>
+      <QuickGuide />
       <ModeSlider />
       <Toolbar />
       <ColorPalette />
