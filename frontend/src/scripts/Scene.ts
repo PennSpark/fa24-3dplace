@@ -8,7 +8,7 @@ import {
   VOXEL_SIZE,
 } from "../helpers/Constants";
 import { MutableRefObject } from "react";
-import { worldToGridCoordinates } from "../helpers/changeCoords";
+import { worldToGridCoordinates } from "../helpers/ChangeCoords";
 
 export function createScene(
   scene: THREE.Scene,
@@ -35,7 +35,18 @@ export function createScene(
   sceneObjects.current.push(planeMesh);
 
   // create grid overlay on plane
-  const grid = new THREE.GridHelper(DIMENSIONS.l, BOARD_SIZE);
+  const gridColor = new THREE.Color(0x888888);
+  const grid = new THREE.GridHelper(
+    DIMENSIONS.l,
+    BOARD_SIZE,
+    gridColor,
+    gridColor
+  );
+
+  // Make the grid lines less intense by reducing opacity
+  const gridMaterial = grid.material as THREE.Material;
+  gridMaterial.opacity = 0.5; // Adjust for transparency
+  gridMaterial.transparent = true;
   scene.add(grid);
 
   // --- voxel block mesh ---
@@ -58,22 +69,37 @@ export function createScene(
   // keep track of preview color
   let lastPreviewColor = currColorRef.current;
 
-  // LIGHTING!!! need this to show results of mesh material
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft ambient light
-  scene.add(ambientLight);
+  // // LIGHTING!!! need this to show results of mesh material
+  // const ambientLight = new THREE.AmbientLight(0xfff111, 1); // softer ambient light
+  // scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // strong directional light
-  directionalLight.position.set(50, 50, 50);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
+  // const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // balanced directional light
+  // directionalLight.position.set(50, 50, 50);
+  // directionalLight.castShadow = true;
 
-  // // shows directional light helper
-  // const lightHelper = new THREE.DirectionalLightHelper(
-  //   directionalLight,
-  //   1,
-  //   0xf00000
-  // );
-  // scene.add(lightHelper);
+  // // Configure shadows for the directional light
+  // directionalLight.shadow.mapSize.width = 1024; // Increase shadow map resolution
+  // directionalLight.shadow.mapSize.height = 1024;
+  // directionalLight.shadow.camera.near = 0.5;
+  // directionalLight.shadow.camera.far = 200;
+  // directionalLight.shadow.camera.left = -50; // Adjust shadow frustum size
+  // directionalLight.shadow.camera.right = 50;
+  // directionalLight.shadow.camera.top = 50;
+  // directionalLight.shadow.camera.bottom = -50;
+  // scene.add(directionalLight);
+
+  // // Optional: Use a helper to debug shadows during development
+  // // const shadowHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+  // // scene.add(shadowHelper);
+
+  // // Add a hemisphere light for a natural sky/ground effect
+  // const hemisphereLight = new THREE.HemisphereLight(0xaaaaaa, 0x444444, 0.7); // Sky color, ground color, intensity
+  // hemisphereLight.position.set(0, 50, 0);
+  // scene.add(hemisphereLight);
+
+  // // Add a light helper (optional, for debugging during development)
+  // // const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+  // // scene.add(lightHelper);
 
   // --- mouse raycast ---
   const mousePos = new THREE.Vector2();
@@ -276,9 +302,15 @@ export function createScene(
   }
 
   function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight; // update camera aspect ratio
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // update the renderer size
+    renderer.setSize(width, height);
+
+    // update the camera aspect ratio
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight); // update renderer size
   }
 
   // return back to canvas.tsx

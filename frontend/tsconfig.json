@@ -6,8 +6,13 @@
   ],
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "strict": true,
-    "types": ["node"]
-  }
+    "baseUrl": "./",
+    "paths": {
+      "*": ["src/*"]
+    }
+  },
 }
