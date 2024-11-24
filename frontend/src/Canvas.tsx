@@ -2,15 +2,14 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
-import { ViewportGizmo } from "three-viewport-gizmo";
 import ColorPalette from "./components/ColorPalette";
 import Toolbar from "./components/Toolbar";
 import { useStateController } from "./helpers/StateProvider.js";
 import ModeSlider from "./components/ModeSlider";
 import { handleUI } from "./scripts/UIHandler.js";
 import useWebSocket from "react-use-websocket";
-import { gridToWorldCoordinates } from "./helpers/changeCoords.js";
 import { VOXEL_SIZE } from "./helpers/Constants.ts";
+import { gridToWorldCoordinates } from "./helpers/ChangeCoords.ts";
 import { QuickGuide } from "./components/QuickGuide.tsx";
 
 function Canvas(props: { username: string }) {
@@ -77,10 +76,46 @@ function Canvas(props: { username: string }) {
         VOXEL_SIZE
       );
 
+      // Parse color from hex to decimal
       const colorDecimal = parseInt(color.replace("#", ""), 16);
+
+      // const createGradientTexture = (colors: any) => {
+      //   const size = colors.length; // Number of color stops
+      //   const canvas = document.createElement("canvas");
+      //   canvas.width = size;
+      //   canvas.height = 1;
+
+      //   const context = canvas.getContext("2d");
+
+      //   // Create a gradient
+      //   const gradient = context?.createLinearGradient(0, 0, size, 0);
+      //   for (let i = 0; i < colors.length; i++) {
+      //     gradient?.addColorStop(i / (size - 1), colors[i]); // Color stops
+      //   }
+
+      //   // Fill the canvas with the gradient
+      //   //@ts-ignore
+      //   context.fillStyle = gradient;
+      //   context?.fillRect(0, 0, size, 1);
+
+      //   // Create a Three.js texture from the canvas
+      //   const texture = new THREE.CanvasTexture(canvas);
+      //   texture.minFilter = THREE.NearestFilter; // Ensure sharp bands
+      //   texture.magFilter = THREE.NearestFilter;
+      //   texture.needsUpdate = true;
+
+      //   return texture;
+      // };
+
+      // // Example colors for a toon shading gradient
+      // const gradientColors = ["#000000", "#444444", "#888888", "#FFFFFF"];
+      // const gradientTexture = createGradientTexture(gradientColors);
+
+      // Create a toon material
       const voxelBaseMat = new THREE.MeshMatcapMaterial({
         color: colorDecimal,
       });
+
       const voxelMesh = new THREE.Mesh(voxelGeometry, voxelBaseMat);
       voxelMesh.name = "voxel";
 
@@ -146,7 +181,6 @@ function Canvas(props: { username: string }) {
   };
 
   useEffect(() => {
-    console.log(`username: ${props.username}`);
     // scene, camera, renderer initalization
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -159,13 +193,15 @@ function Canvas(props: { username: string }) {
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current!,
       antialias: true,
-      //   alpha: true,
+      alpha: true,
     });
 
     // scene config
     document.body.appendChild(renderer.domElement);
-    scene.background = new THREE.Color(0xffffff);
     renderer.setSize(window.innerWidth, innerHeight);
+
+    const gradientTexture = createGradientTexture(1024, 1024);
+    scene.background = gradientTexture;
 
     const controls = createControls(camera, renderer);
     setControls(controls);
@@ -187,113 +223,9 @@ function Canvas(props: { username: string }) {
       deleteVoxel
     ); // render the scene
 
-    // setup viewport gizmo
-    const viewportGizmo = new ViewportGizmo(camera, renderer, {
-      placement: "bottom-left",
-      size: 150,
-      lineWidth: 3,
-      offset: {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      },
-      font: {
-        family: "helvetica",
-        weight: 900,
-      },
-      resolution: 64,
-      backgroundSphere: {
-        enabled: true,
-        color: 0,
-        opacity: 0.2,
-      },
-      x: {
-        text: "X",
-        drawLine: true,
-        border: false,
-        colors: {
-          main: "#FF2E2E",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-      y: {
-        text: "Y",
-        drawLine: true,
-        border: false,
-        colors: {
-          main: "#54F000",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-      z: {
-        text: "Z",
-        drawLine: true,
-        border: false,
-        colors: {
-          main: "#6181FF",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-      nx: {
-        text: "",
-        drawLine: false,
-        border: false,
-        colors: {
-          main: "#EE1B49",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-      ny: {
-        text: "",
-        drawLine: false,
-        border: false,
-        colors: {
-          main: "#48F000",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-      nz: {
-        text: "",
-        drawLine: false,
-        border: false,
-        colors: {
-          main: "#5451FB",
-          hover: "#FFFFFF",
-          text: "#000000",
-          hoverText: "#000000",
-        },
-      },
-    });
-    viewportGizmo.target = controls.target;
-
-    // listeners for viewport gizmo
-    const handleStart = () => {
-      controls.enabled = false;
-    };
-    const handleEnd = () => {
-      controls.enabled = true;
-    };
-    viewportGizmo.addEventListener("start", handleStart);
-    viewportGizmo.addEventListener("end", handleEnd);
-    controls.addEventListener("change", () => {
-      viewportGizmo.update();
-    });
-
     const animate = () => {
       window.requestAnimationFrame(animate);
       renderer.render(scene, camera);
-      viewportGizmo.render();
 
       if (controls.enabled) controls.update();
     };
@@ -302,8 +234,6 @@ function Canvas(props: { username: string }) {
     return () => {
       // clean up event listeners to prevent duplicate events to trigger
       removeEventListeners();
-      viewportGizmo.removeEventListener("start", handleStart);
-      viewportGizmo.removeEventListener("end", handleEnd);
       controls.dispose();
     };
   }, []);
@@ -314,6 +244,28 @@ function Canvas(props: { username: string }) {
   useEffect(() => {
     handleUI(setIsMouseOverUI);
   }, [setIsMouseOverUI]); // re-run when setter changes
+
+  function createGradientTexture(width: any, height: any) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return new THREE.Texture(canvas);
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#4182A4");
+    gradient.addColorStop(0.3, "#a1b8bc");
+    gradient.addColorStop(1, "#F2F2F2");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+    return texture;
+  }
 
   return (
     <>
