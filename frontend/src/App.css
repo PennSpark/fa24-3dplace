@@ -224,6 +224,11 @@ input:checked + .slider:before {
   transition: width 0.3s ease-in-out;
 }
 
+.quick-guide-button:focus {
+  border: none;
+  outline: none;
+}
+
 .quick-guide-button-closed {
   width: 150px;
 }
@@ -238,10 +243,11 @@ input:checked + .slider:before {
 
 .quick-guide-icon {
   font-size: 0.875rem;
+  transition: all;
 }
-
 .quick-guide-dropdown {
   position: absolute;
+  margin-top: 0.5rem;
   top: calc(100% + 0.1rem);
   right: 0;
   background-color: #FFFFFF;
@@ -250,12 +256,16 @@ input:checked + .slider:before {
   padding: 1rem;
   width: 100%;
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
-  display: none;
+  opacity: 0;
+  visibility: hidden; 
+  transition: opacity 0.1s ease-in, transform 0.1s ease-in, visibility 0.1s ease-in;
 }
 
 .quick-guide-dropdown.show {
-  display: block;
+  opacity: 1;
+  visibility: visible; 
 }
+
 
 .quick-guide-item {
   display: flex;
@@ -281,6 +291,17 @@ input:checked + .slider:before {
   flex-shrink: 0;
   margin-left: 5px;
   margin-right: 5px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.quick-guide-icon.rotate-up {
+  transform: rotate(-180deg); 
+  transition: transform 0.3s ease-in-out;
+}
+
+.quick-guide-icon.rotate-down {
+  transform: rotate(0deg); 
+  transition: transform 0.3s ease-in-out;
 }
 
 .snackbar {
