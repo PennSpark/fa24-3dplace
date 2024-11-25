@@ -8,21 +8,24 @@ export function QuickGuide() {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   return (
-
     <div className="quick-guide">
-      <button 
-        className={`quick-guide-button ${isOpen ? 'quick-guide-button-open' : 'quick-guide-button-closed ui-element'}`} 
+      <button
+        className={`quick-guide-button ${
+          isOpen
+            ? "quick-guide-button-open"
+            : "quick-guide-button-closed ui-element"
+        }`}
         onClick={toggleDropdown}
       >
         <span className="quick-guide-text">Quick Guide</span>
-        {isOpen ? (
-          <FaChevronUp className="quick-guide-icon" />
-        ) : (
-          <FaChevronDown className="quick-guide-icon" />
-        )}
+        <FaChevronDown
+          className={`quick-guide-icon ${isOpen ? "rotate-up" : "rotate-down"}`}
+        />
       </button>
 
-      <div className={`ui-element quick-guide-dropdown ${isOpen ? 'show' : ''}`}>
+      <div
+        className={`ui-element quick-guide-dropdown ${isOpen ? "show" : ""}`}
+      >
         <div className="quick-guide-item">
           <span className="quick-guide-item-label">Place:</span>
           <span className="quick-guide-item-description">
