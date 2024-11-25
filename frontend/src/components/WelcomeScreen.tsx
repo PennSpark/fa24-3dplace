@@ -21,6 +21,8 @@ function WelcomeScreen({ onSubmit }: any) {
         Made by{" "}
         <a
           href="https://pennspark.org/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="hover:underline font-medium cursor-pointer text-[#6998DE] hover:text-[#6998DE] transition-all"
         >
           Spark
