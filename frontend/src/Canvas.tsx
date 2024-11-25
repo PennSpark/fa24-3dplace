@@ -28,6 +28,7 @@ function Canvas(props: { username: string }) {
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const controlsRef = useRef<any>(null);
   // keep updated list of all rendered objects
   const sceneObjectsRef = useRef<any[]>([]);
 
@@ -205,6 +206,7 @@ function Canvas(props: { username: string }) {
     scene.background = gradientTexture;
 
     const controls = createControls(camera, renderer);
+    controlsRef.current = controls;
     setControls(controls);
     controls.saveState();
     // start with build mode
@@ -273,7 +275,7 @@ function Canvas(props: { username: string }) {
       <QuickGuide />
       <ModeSlider />
       <Toolbar />
-      <ColorPalette />
+      <ColorPalette controls={controlsRef} />
       <FeedbackForm />
       <canvas ref={canvasRef} id="3canvas" />
     </>

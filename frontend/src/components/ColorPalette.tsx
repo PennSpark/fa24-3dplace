@@ -1,7 +1,7 @@
 import { useStateController } from "../helpers/StateProvider";
 import transparentBackground from "../assets/transparent_background.png";
 
-function ColorPalette() {
+function ColorPalette({ controls }: { controls: React.RefObject<any> }) {
   const colors: string[] = [
     "#EB1800",
     "#FF7105",
@@ -21,7 +21,7 @@ function ColorPalette() {
     "transparent",
   ];
 
-  const { setCurrColor } = useStateController();
+  const { setCurrColor, setIsBuildModeRef } = useStateController();
 
   return (
     <div className="ui-element color-pallete">
@@ -32,6 +32,8 @@ function ColorPalette() {
             key={color} // Add a key for each element
             onClick={() => {
               setCurrColor(color);
+              setIsBuildModeRef(true);
+              if (controls) controls.current.enableRotate = false;
             }}
             style={{
               backgroundColor: color !== "transparent" ? color : "initial",

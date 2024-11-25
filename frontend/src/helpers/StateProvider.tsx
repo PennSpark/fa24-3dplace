@@ -17,6 +17,9 @@ interface StateControllerContextType {
   isMouseOverUIRef: MutableRefObject<boolean>;
   setIsMouseOverUI: (flag: boolean) => void;
   isBuildModeRef: MutableRefObject<boolean>;
+  setIsBuildModeRef: (flag: boolean) => void;
+  mode: boolean;
+  setMode: React.Dispatch<React.SetStateAction<boolean>>;
   isServerOnlineRef: MutableRefObject<boolean>;
   setIsServerOnline: (flag: boolean) => void;
 }
@@ -44,7 +47,16 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
   const setIsMouseOverUI = (flag: boolean) => {
     isMouseOverUIRef.current = flag; // update the ref value
   };
+
+  // build variables
   const isBuildModeRef = useRef(true);
+  const setIsBuildModeRef = (flag: boolean) => {
+    isBuildModeRef.current = flag; // update the ref value
+    setMode(flag); // Update the React state
+  };
+  const [mode, setMode] = useState<boolean>(isBuildModeRef.current);
+
+  // update if node server is online
   const isServerOnlineRef = useRef(false);
   const setIsServerOnline = (flag: boolean) => {
     isServerOnlineRef.current = flag; // update the ref value
@@ -60,6 +72,9 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
         isMouseOverUIRef,
         setIsMouseOverUI,
         isBuildModeRef,
+        setIsBuildModeRef,
+        mode,
+        setMode,
         isServerOnlineRef,
         setIsServerOnline,
       }}
