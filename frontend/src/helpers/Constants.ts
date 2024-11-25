@@ -22,3 +22,10 @@ export const START_COORDS = {
   y: 200 * 1.25,
   z: 200 * 1.25,
 };
+
+export const CLICKS_INTERVAL = 5000; // milliseconds
+export const CPS = 5;
+export const CLICKS_LIMIT = CPS * (CLICKS_INTERVAL / 1000);
+export const SPAM_MESSAGE =
+  "Please do not spam. Wait 10 seconds before placing more blocks.";
+export const COOLDOWN_LENGTH = 10000;

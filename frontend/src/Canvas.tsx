@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { createControls } from "./scripts/ViewportControls.js";
 import { createScene } from "./scripts/Scene.js";
@@ -8,10 +8,18 @@ import { useStateController } from "./helpers/StateProvider.js";
 import ModeSlider from "./components/ModeSlider";
 import { handleUI } from "./scripts/UIHandler.js";
 import useWebSocket from "react-use-websocket";
-import { VOXEL_SIZE } from "./helpers/Constants.ts";
+import {
+  CLICKS_INTERVAL,
+  CLICKS_LIMIT,
+  COOLDOWN_LENGTH,
+  SPAM_MESSAGE,
+  VOXEL_SIZE,
+} from "./helpers/Constants.ts";
 import { gridToWorldCoordinates } from "./helpers/ChangeCoords.ts";
 import { QuickGuide } from "./components/QuickGuide.tsx";
 import { FeedbackForm } from "./components/FeedbackForm.tsx";
+import { useSnackbar } from "notistack";
+import { CSSTransition } from "react-transition-group";
 
 function Canvas(props: { username: string }) {
   // access state variables through global provider
@@ -21,19 +29,52 @@ function Canvas(props: { username: string }) {
     isMouseOverUIRef,
     setIsMouseOverUI,
     isBuildModeRef,
+    setIsBuildModeRef,
     isServerOnlineRef,
     setIsServerOnline,
   } = useStateController();
+
+  //! backend endpoint
+  const WEB_SOCKET_URL =
+    import.meta.env.VITE_WEB_SOCKET_URL || "ws://127.0.0.1:8000";
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const controlsRef = useRef<any>(null);
+
+  // spam detection variables - clicks per second (CPS)
+  const clickCountRef = useRef(0); // track click count
+  const [clicksPerInterval, setClicksPerInterval] = useState(0); // value to raise spam detector
+  const [isSpamming, setIsSpamming] = useState(false);
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  let snackbarId: any;
+
+  const handleSpam = () => {
+    clickCountRef.current++; // spam prevention
+    setClicksPerInterval(clickCountRef.current); // spam prevention
+    if (clickCountRef.current > CLICKS_LIMIT) {
+      setIsSpamming(true);
+      setIsBuildModeRef(false);
+      controlsRef.current.enableRotate = true;
+      snackbarId = enqueueSnackbar(SPAM_MESSAGE, {
+        variant: "error",
+        preventDuplicate: true,
+        persist: true,
+        anchorOrigin: { horizontal: "center", vertical: "bottom" },
+        className: "snackbar",
+      });
+
+      // set up a timer to close the snackbar after 20 seconds
+      setTimeout(() => {
+        closeSnackbar(snackbarId);
+        setIsSpamming(false);
+      }, COOLDOWN_LENGTH);
+    }
+  };
+
   // keep updated list of all rendered objects
   const sceneObjectsRef = useRef<any[]>([]);
-
-  const WEB_SOCKET_URL =
-    import.meta.env.VITE_WEB_SOCKET_URL || "ws://127.0.0.1:8000";
 
   // establish web socket connection
   const { sendJsonMessage, lastMessage } = useWebSocket(WEB_SOCKET_URL, {
@@ -130,15 +171,17 @@ function Canvas(props: { username: string }) {
 
   // helper function to send voxel data to server
   const placeVoxel = (x: number, y: number, z: number, color: string) => {
-    sendJsonMessage({
-      type: "NEW_VOXEL",
-      x,
-      y,
-      z,
-      color,
-      creatorName: props.username,
-      timeCreated: Date.now(),
-    });
+    handleSpam();
+    if (!isSpamming)
+      sendJsonMessage({
+        type: "NEW_VOXEL",
+        x,
+        y,
+        z,
+        color,
+        creatorName: props.username,
+        timeCreated: Date.now(),
+      });
   };
 
   // function to remove voxel from scene
@@ -171,15 +214,17 @@ function Canvas(props: { username: string }) {
 
   // helper function to remove voxel data from server
   const deleteVoxel = (x: number, y: number, z: number) => {
-    sendJsonMessage({
-      type: "DELETE_VOXEL",
-      x,
-      y,
-      z,
-      color: "transparent",
-      creatorName: props.username,
-      timeCreated: Date.now(),
-    });
+    handleSpam();
+    if (!isSpamming)
+      sendJsonMessage({
+        type: "DELETE_VOXEL",
+        x,
+        y,
+        z,
+        color: "transparent",
+        creatorName: props.username,
+        timeCreated: Date.now(),
+      });
   };
 
   useEffect(() => {
@@ -225,6 +270,12 @@ function Canvas(props: { username: string }) {
       isServerOnlineRef,
       deleteVoxel
     ); // render the scene
+
+    // resert clicks per interval tracker
+    setInterval(() => {
+      clickCountRef.current = 0;
+      setClicksPerInterval(clickCountRef.current);
+    }, CLICKS_INTERVAL);
 
     const animate = () => {
       window.requestAnimationFrame(animate);
@@ -273,10 +324,23 @@ function Canvas(props: { username: string }) {
   return (
     <>
       <QuickGuide />
-      <ModeSlider />
+      <ModeSlider isSpamming={isSpamming} />
       <Toolbar />
-      <ColorPalette controls={controlsRef} />
+
+      <CSSTransition
+        in={!isSpamming}
+        timeout={300}
+        classNames="fade"
+        unmountOnExit
+      >
+        <ColorPalette controls={controlsRef} />
+      </CSSTransition>
+
       <FeedbackForm />
+
+      {/* <p className="absolute text-black bottom-0 left-0">
+        Clicks per second: {clicksPerInterval}
+      </p> */}
       <canvas ref={canvasRef} id="3canvas" />
     </>
   );

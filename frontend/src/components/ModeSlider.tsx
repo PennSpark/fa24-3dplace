@@ -2,7 +2,7 @@ import { FaArrowsAlt } from "react-icons/fa";
 import { FiBox } from "react-icons/fi";
 import { useStateController } from "../helpers/StateProvider";
 
-function ModeSlider() {
+function ModeSlider({ isSpamming }: { isSpamming: boolean }) {
   const { controls, setIsBuildModeRef, mode } = useStateController();
 
   const toggleMode = () => {
@@ -14,7 +14,12 @@ function ModeSlider() {
   return (
     <div className="mode-slider ui-element">
       <label className="toggle-switch">
-        <input type="checkbox" checked={mode} onChange={toggleMode} />
+        <input
+          type="checkbox"
+          checked={mode}
+          onChange={toggleMode}
+          disabled={isSpamming}
+        />
         <span className="slider">
           <span className="slider-circle">
             {mode ? <FiBox /> : <FaArrowsAlt />}
