@@ -50,10 +50,10 @@ body {
 }
 
 .color-pallete {
-  background-color: #fbfbfb;
+  background-color: #f1f9ff59;
   border-radius: 15px;
   border: 1.5px solid rgb(255, 255, 255);
-  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 2px 1px 8px #ffffff66, 2px 4px 10px #00000030;
   position: fixed;
   bottom: 20px;
   padding: 0 0.5rem;
@@ -63,6 +63,7 @@ body {
   justify-content: space-evenly;
   left: 50%; 
   transform: translateX(-50%); 
+  backdrop-filter: blur(10px) brightness(100%);
 }
 
 .color-option {
@@ -80,23 +81,28 @@ body {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  background-color: #ffffff;
-  padding: 1rem;
-  border-width: 1px;
+  background-color: #f1f9ff59;
+  padding: 0.9rem;
+  /* border-width: 1px;
   border-color: #d1d5db;
-  border-radius: 1rem;
+  border-radius: 1rem;*/
   /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); */
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
   z-index: 50;
+  backdrop-filter: blur(10px) brightness(100%);
+  border: 1px solid rgb(255, 255, 255);
+  border-radius: 15px;
+  box-shadow: inset 2px 1px 8px #ffffff4c, 2px 2px 15px #0000001a;
 }
 
 .toolbar-button {
-  background-color: #ffffff;
-  border: none;
-  padding: 0.5rem;
+  background-color: #efefef;
+  border-radius: 5px;
+  box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff;
+  padding: 0.4rem;
   font-size: 1.3rem;
   cursor: pointer;
-  box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);
+  /* box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);*/
 }
 
 .mode-slider {

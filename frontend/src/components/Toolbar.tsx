@@ -1,5 +1,7 @@
-import { FaHome, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 import { useStateController } from "../helpers/StateProvider";
+import home from "../assets/home.svg";
+import zoomin from "../assets/zoomin.svg";
+import zoomout from "../assets/zoomout.svg";
 
 function Toolbar() {
   // toolbar button functionality
@@ -44,21 +46,21 @@ function Toolbar() {
         onClick={handleResetCamera}
         className="mr-5 toolbar-button"
       >
-        <FaHome className="text-black" />
+        <img className="home" src={home}/>
       </button>
       <button
         title="Zoom In"
         onClick={handleZoomIn}
         className="mr-5 toolbar-button"
       >
-        <FaSearchPlus className="text-black" />
+        <img className="zoomin" src={zoomin}/>
       </button>
       <button
         title="Zoom Out"
         onClick={handleZoomOut}
         className="toolbar-button"
       >
-        <FaSearchMinus className="text-black" />
+        <img className="zoomin" src={zoomout}/>
       </button>
     </div>
   );
