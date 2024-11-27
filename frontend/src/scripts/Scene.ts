@@ -293,8 +293,6 @@ export function createScene(
               scene.add(voxel);
               sceneObjects.current.push(voxel);
             }
-          } else {
-            console.log("Voxel already exists at this position!");
           }
         }
       }

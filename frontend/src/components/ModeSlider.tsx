@@ -12,7 +12,7 @@ function ModeSlider({ isSpamming }: { isSpamming: boolean }) {
   };
 
   return (
-    <div className="mode-slider ui-element bottom-6 lg:top-4">
+    <div className="mode-slider ui-element h-fit bottom-6 lg:top-4">
       <label className="toggle-switch">
         <input
           type="checkbox"

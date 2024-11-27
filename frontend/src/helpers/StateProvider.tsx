@@ -71,9 +71,10 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
     "#BFEF45",
     "#00CC00",
     "#166F00",
+    "#00E5F0",
+    "#0078FF",
     "#241FD3",
-    "#00B2FF",
-    "#81F3ED",
+    "#5856D6",
     "#7900C3",
     "#F032E6",
     "#FFA4D1",
@@ -82,7 +83,6 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
     "#000000",
     "#888888",
     "#E0E0E0",
-    "#FFFFFF",
     "transparent",
   ];
 
