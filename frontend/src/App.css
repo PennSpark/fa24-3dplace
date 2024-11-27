@@ -51,7 +51,7 @@ body {
 
 .color-pallete {
   background-color: #f1f9ff59;
-  border-radius: 15px;
+  border-radius: 0.5rem;
   border: 1.5px solid rgb(255, 255, 255);
   box-shadow: inset 2px 1px 8px #ffffff66, 2px 4px 10px #00000030;
   position: fixed;
@@ -63,18 +63,17 @@ body {
   justify-content: space-evenly;
   left: 50%; 
   transform: translateX(-50%); 
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
   backdrop-filter: blur(10px) brightness(100%);
 }
 
 .color-option {
   width: 1.75rem;
   height: 1.75rem;
-  margin: 1rem 0.5rem;
   cursor: pointer;
   caret-color: transparent;
   padding: 10px;
   border-radius: 2px;
-  box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);
 }
 
 .toolbar {
@@ -89,6 +88,7 @@ body {
   /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); */
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
   z-index: 50;
+  -webkit-backdrop-filter: blur(10px) brightness(100%);
   backdrop-filter: blur(10px) brightness(100%);
   border: 1px solid rgb(255, 255, 255);
   border-radius: 15px;
@@ -98,7 +98,7 @@ body {
 .toolbar-button {
   background-color: #efefef;
   border-radius: 5px;
-  box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff;
+  /* box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff; */
   padding: 0.4rem;
   font-size: 1.3rem;
   cursor: pointer;
@@ -153,6 +153,7 @@ body {
   font-weight: bold;
   font-size: 20px;
   transition: 0.4s;
+  transform: translateY(2px);
 }
 
 .slider-text-move {
@@ -163,6 +164,7 @@ body {
   font-weight: bold;
   font-size: 20px;
   transition: 0.4s;
+  transform: translate(-3px, 2px);
 }
 
 .slider {
@@ -175,7 +177,7 @@ body {
   background-color: #F8FBFD;
   transition: 0.4s;
   border-radius: 30px;
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 6px 0 rgba(255, 255, 255, 0.2), 0 4px 8px 0 rgba(0,0,0,0.1), inset 0 4px 4px rgba(0, 0, 0, 0.3), inset 0 -1px 6px 0 rgba(255, 255, 255, 0.85);
 }
 
 .slider:before {
@@ -188,6 +190,7 @@ body {
   background-color: #D3F4FF;
   transition: 0.4s;
   border-radius: 50%;
+  box-shadow: 2px 2px 6px 0 rgba(0, 0, 0, 0.2);
   left: 0%;
 }
 

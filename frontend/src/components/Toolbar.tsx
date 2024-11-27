@@ -46,21 +46,21 @@ function Toolbar() {
         onClick={handleResetCamera}
         className="mr-5 toolbar-button"
       >
-        <img className="home" src={home}/>
+        <img className="home" alt="home" src={home} />
       </button>
       <button
         title="Zoom In"
         onClick={handleZoomIn}
         className="mr-5 toolbar-button"
       >
-        <img className="zoomin" src={zoomin}/>
+        <img className="zoomin" alt="zoom in" src={zoomin} />
       </button>
       <button
         title="Zoom Out"
         onClick={handleZoomOut}
         className="toolbar-button"
       >
-        <img className="zoomin" src={zoomout}/>
+        <img className="zoomin" alt="zoom out" src={zoomout} />
       </button>
     </div>
   );

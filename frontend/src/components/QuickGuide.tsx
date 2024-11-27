@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaChevronDown, FaChevronUp, FaArrowsAlt } from "react-icons/fa";
+import { FaChevronDown, FaArrowsAlt } from "react-icons/fa";
 import { FiBox } from "react-icons/fi";
 
 export function QuickGuide() {

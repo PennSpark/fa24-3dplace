@@ -49,12 +49,13 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff, 0px 0px 5px 1px #ffffff;
+
+button:hover, .color-option:hover{
+  box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff;
 }
 button:active {
   border-radius: 5px;
-  box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff, inset -2px -2px 4px #ffffff, inset 2px 4px 4px #0d275040;
+  box-shadow: inset -2px -2px 4px #ffffff, inset 2px 4px 4px #0d275040;
 }
 
 @media (prefers-color-scheme: light) {
