@@ -48,7 +48,7 @@ function Canvas(props: { username: string }) {
 
   // spam detection variables - clicks per second (CPS)
   const clickCountRef = useRef(0); // track click count
-  const [clicksPerInterval, setClicksPerInterval] = useState(0); // value to raise spam detector
+  const [, setClicksPerInterval] = useState(0); // value to raise spam detector
   const [isSpamming, setIsSpamming] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let snackbarId: any;

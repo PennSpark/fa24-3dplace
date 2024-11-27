@@ -3,7 +3,6 @@ import home from "../assets/home.svg";
 import zoomin from "../assets/zoomin.svg";
 import zoomout from "../assets/zoomout.svg";
 import info from "../assets/info.svg";
-import bucket from "../assets/bucket.svg";
 import BucketSVG from "./BucketSVG";
 
 interface ToolbarProps {
