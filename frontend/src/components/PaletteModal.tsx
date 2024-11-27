@@ -48,8 +48,8 @@ function PaletteModal({
                     color !== "transparent"
                       ? `none`
                       : !isSelected
-                      ? `url(${eraser})`
-                      : `url(${filled_eraser})`,
+                      ? "url(" + eraser + ")"
+                      : "url(" + filled_eraser + ")",
                   backgroundSize: "contain",
                   width:
                     isSelected && color !== "transparent" ? "44px" : "50px",

@@ -30,8 +30,8 @@ function ColorPalette({ controls }: { controls: React.RefObject<any> }) {
                 color !== "transparent"
                   ? `none`
                   : !isSelected
-                  ? `url(${eraser})`
-                  : `url(${filled_eraser})`,
+                  ? "url(" + eraser + ")"
+                  : "url(" + filled_eraser + ")",
               backgroundSize: "contain",
               width: isSelected && color !== "transparent" ? "24px" : "30px",
               height: isSelected && color !== "transparent" ? "24px" : "30px",
