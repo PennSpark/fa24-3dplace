@@ -4,33 +4,14 @@ import filled_eraser from "../assets/filled_eraser.svg";
 import { useState } from "react";
 
 function ColorPalette({ controls }: { controls: React.RefObject<any> }) {
-  const colors: string[] = [
-    "#EB1800",
-    "#FF7105",
-    "#FEE400",
-    "#BFEF45",
-    "#00CC00",
-    "#166F00",
-    "#241FD3",
-    "#00B2FF",
-    "#81F3ED",
-    "#7900C3",
-    "#F032E6",
-    "#FFA4D1",
-    "#D4852A",
-    "#63300F",
-    "#000000",
-    "#888888",
-    "#E0E0E0",
-    "#FFFFFF",
-    "transparent",
-  ];
-
-  const { setCurrColor, setIsBuildModeRef } = useStateController();
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const { colors, currColorRef, setCurrColor, setIsBuildModeRef } =
+    useStateController();
+  const [selectedColor, setSelectedColor] = useState<string | null>(
+    currColorRef.current
+  );
 
   return (
-    <div className="ui-element color-pallete">
+    <div className="ui-element color-pallete invisible lg:visible">
       {colors.map((color) => {
         const isSelected = selectedColor === color;
         return (

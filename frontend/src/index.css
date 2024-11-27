@@ -33,6 +33,12 @@ body {
   min-height: 100vh;
 }
 
+canvas {
+  display: block; 
+  width: 100vw;
+  height: 100vh;
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

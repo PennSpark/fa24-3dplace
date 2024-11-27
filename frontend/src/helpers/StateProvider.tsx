@@ -22,6 +22,7 @@ interface StateControllerContextType {
   setMode: React.Dispatch<React.SetStateAction<boolean>>;
   isServerOnlineRef: MutableRefObject<boolean>;
   setIsServerOnline: (flag: boolean) => void;
+  colors: string[];
 }
 
 const StateControllerContext = createContext<
@@ -62,6 +63,29 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
     isServerOnlineRef.current = flag; // update the ref value
   };
 
+  // all colors
+  const colors: string[] = [
+    "#EB1800",
+    "#FF7105",
+    "#FEE400",
+    "#BFEF45",
+    "#00CC00",
+    "#166F00",
+    "#241FD3",
+    "#00B2FF",
+    "#81F3ED",
+    "#7900C3",
+    "#F032E6",
+    "#FFA4D1",
+    "#D4852A",
+    "#63300F",
+    "#000000",
+    "#888888",
+    "#E0E0E0",
+    "#FFFFFF",
+    "transparent",
+  ];
+
   return (
     <StateControllerContext.Provider
       value={{
@@ -77,6 +101,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
         setMode,
         isServerOnlineRef,
         setIsServerOnline,
+        colors,
       }}
     >
       {children}

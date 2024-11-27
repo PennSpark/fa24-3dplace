@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../assets/penn_place_logo.png";
 
 function WelcomeScreen({ onSubmit }: any) {
   const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    //! handle weird mobile website formatting
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "instant",
+    });
+  }, []);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -12,9 +20,9 @@ function WelcomeScreen({ onSubmit }: any) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen mx-7">
       <img src={logo} className="w-24 mb-5" alt="logo" />
-      <h1 className="text-4xl font-semibold mb-1 text-black">
+      <h1 className="text-3xl lg:text-4xl font-semibold mb-1 text-black">
         Welcome to Penn Place!
       </h1>
       <h3 className="mb-5 text-gray-500 font-medium">

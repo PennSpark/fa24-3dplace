@@ -8,7 +8,7 @@ export function QuickGuide() {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   return (
-    <div className="quick-guide">
+    <div className="quick-guide invisible lg:visible">
       <button
         className={`quick-guide-button ${
           isOpen

@@ -20,6 +20,9 @@ import { QuickGuide } from "./components/QuickGuide.tsx";
 import { FeedbackForm } from "./components/FeedbackForm.tsx";
 import { useSnackbar } from "notistack";
 import { CSSTransition } from "react-transition-group";
+import InfoModal from "./components/InfoModal.tsx";
+import { createPortal } from "react-dom";
+import PaletteModal from "./components/PaletteModal.tsx";
 
 function Canvas(props: { username: string }) {
   // access state variables through global provider
@@ -73,6 +76,16 @@ function Canvas(props: { username: string }) {
     }
   };
 
+  // mobile info modal
+  const [showInfoModal, setShowInfoModal] = useState<boolean>(false);
+  const mobileMediaQuery = window.matchMedia("(max-width: 1024px)");
+  const handleMediaQueryChange = (e: MediaQueryListEvent) => {
+    setShowInfoModal(e.matches); // show modal if the screen mobile
+  };
+
+  // mobile color palette modal
+  const [showPaletteModal, setShowPaletteModal] = useState<boolean>(false);
+
   // keep updated list of all rendered objects
   const sceneObjectsRef = useRef<any[]>([]);
 
@@ -119,42 +132,10 @@ function Canvas(props: { username: string }) {
         VOXEL_SIZE
       );
 
-      // Parse color from hex to decimal
+      // parse color from hex to decimal
       const colorDecimal = parseInt(color.replace("#", ""), 16);
 
-      // const createGradientTexture = (colors: any) => {
-      //   const size = colors.length; // Number of color stops
-      //   const canvas = document.createElement("canvas");
-      //   canvas.width = size;
-      //   canvas.height = 1;
-
-      //   const context = canvas.getContext("2d");
-
-      //   // Create a gradient
-      //   const gradient = context?.createLinearGradient(0, 0, size, 0);
-      //   for (let i = 0; i < colors.length; i++) {
-      //     gradient?.addColorStop(i / (size - 1), colors[i]); // Color stops
-      //   }
-
-      //   // Fill the canvas with the gradient
-      //   //@ts-ignore
-      //   context.fillStyle = gradient;
-      //   context?.fillRect(0, 0, size, 1);
-
-      //   // Create a Three.js texture from the canvas
-      //   const texture = new THREE.CanvasTexture(canvas);
-      //   texture.minFilter = THREE.NearestFilter; // Ensure sharp bands
-      //   texture.magFilter = THREE.NearestFilter;
-      //   texture.needsUpdate = true;
-
-      //   return texture;
-      // };
-
-      // // Example colors for a toon shading gradient
-      // const gradientColors = ["#000000", "#444444", "#888888", "#FFFFFF"];
-      // const gradientTexture = createGradientTexture(gradientColors);
-
-      // Create a toon material
+      // create a matcap material
       const voxelBaseMat = new THREE.MeshMatcapMaterial({
         color: colorDecimal,
       });
@@ -269,7 +250,19 @@ function Canvas(props: { username: string }) {
       sceneObjectsRef,
       isServerOnlineRef,
       deleteVoxel
-    ); // render the scene
+    );
+
+    // init media query listener
+    setShowInfoModal(mobileMediaQuery.matches); // auto show modal if screen mobile
+    mobileMediaQuery.addEventListener("change", handleMediaQueryChange);
+    //! handle weird mobile website formatting
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) {
+      window.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
+    }
 
     // resert clicks per interval tracker
     setInterval(() => {
@@ -288,6 +281,7 @@ function Canvas(props: { username: string }) {
     return () => {
       // clean up event listeners to prevent duplicate events to trigger
       removeEventListeners();
+      mobileMediaQuery.removeEventListener("change", handleMediaQueryChange);
       controls.dispose();
     };
   }, []);
@@ -325,7 +319,10 @@ function Canvas(props: { username: string }) {
     <>
       <QuickGuide />
       <ModeSlider isSpamming={isSpamming} />
-      <Toolbar />
+      <Toolbar
+        setShowInfoModal={setShowInfoModal}
+        setShowPaletteModal={setShowPaletteModal}
+      />
 
       <CSSTransition
         in={!isSpamming}
@@ -338,6 +335,30 @@ function Canvas(props: { username: string }) {
 
       <FeedbackForm />
 
+      {showInfoModal &&
+        createPortal(
+          <InfoModal
+            handleClose={() => {
+              setShowInfoModal(false);
+              setIsMouseOverUI(false); // toggle off mouseOverUI
+            }}
+            setIsMouseOverUI={setIsMouseOverUI}
+          />,
+          document.body
+        )}
+
+      {showPaletteModal &&
+        createPortal(
+          <PaletteModal
+            handleClose={() => {
+              setShowPaletteModal(false);
+              setIsMouseOverUI(false); // toggle off mouseOverUI
+            }}
+            controls={controlsRef}
+            setIsMouseOverUI={setIsMouseOverUI}
+          />,
+          document.body
+        )}
       {/* <p className="absolute text-black bottom-0 left-0">
         Clicks per second: {clicksPerInterval}
       </p> */}

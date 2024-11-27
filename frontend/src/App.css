@@ -95,19 +95,47 @@ body {
   box-shadow: inset 2px 1px 8px #ffffff4c, 2px 2px 15px #0000001a;
 }
 
-.toolbar-button {
+.toolbar-button, .toolbar-button-mobile, .toolbar-fab {
   background-color: #efefef;
   border-radius: 5px;
   /* box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff; */
   padding: 0.4rem;
   font-size: 1.3rem;
   cursor: pointer;
+  width: 2.4rem;
+  height: 2.4rem;
+  text-align: center;
   /* box-shadow: -3px -3px 7px 0px rgba(255, 255, 255, 1), 2px 2px 8px 0px rgba(13, 39, 80, 0.4);*/
 }
 
+.toolbar-button-mobile {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  vertical-align: middle;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.toolbar-fab {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  vertical-align: middle;
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+}
+
+.toolbar-fab:active {
+  border-radius: 50%;
+}
+
+
 .mode-slider {
   position: fixed;
-  top: 1rem;
   left: 50%;
   transform: translateX(-50%);
   /* background-color: #ffffff; */
@@ -233,6 +261,10 @@ input:checked + .slider:before {
   transition: width 0.3s ease-in-out;
 }
 
+.confirm-btn:active {
+  border-radius: 9999px;
+}
+
 .quick-guide-button:focus {
   border: none;
   outline: none;
@@ -274,7 +306,6 @@ input:checked + .slider:before {
   opacity: 1;
   visibility: visible; 
 }
-
 
 .quick-guide-item {
   display: flex;
