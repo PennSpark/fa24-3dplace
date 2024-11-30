@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import logo from "../assets/penn_place_logo.png";
+import CountdownTimer from "./CountdownTimer";
 
 function WelcomeScreen({ onSubmit }: any) {
   const [username, setUsername] = useState("");
@@ -42,15 +43,17 @@ function WelcomeScreen({ onSubmit }: any) {
           placeholder="Enter your username"
           value={username}
           onChange={(e: any) => setUsername(e.target.value)}
-          className="p-2 w-64 text-black font-medium shadow-lg rounded-md mb-5 focus:outline-none  bg-white"
+          className="py-2 px-4 w-64 text-black font-medium  rounded-md mb-3 focus:outline-none  bg-white"
         />
         <button
           type="submit"
-          className="px-4 py-2 text-white font-semibold bg-[#6998DE] rounded-md hover:bg-[#7BB0FF] transition-colors hover:border-[#7BB0FF]"
+          className="px-4 py-2 w-full text-white font-semibold bg-[#6998DE] rounded-md hover:bg-[#7BB0FF] transition-colors hover:border-[#7BB0FF] hover:shadow-none"
         >
-          Start
+          Join
         </button>
       </form>
+
+      <CountdownTimer />
     </div>
   );
 }

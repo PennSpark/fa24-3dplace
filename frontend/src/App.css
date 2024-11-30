@@ -363,3 +363,57 @@ input:checked + .slider:before {
   opacity: 0;
   transition: opacity 300ms;
 }
+
+.countdown-timer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 1.25rem 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.timer-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-text {
+  font-size: 3.5rem;
+  font-weight: 650;
+  color: #202020;
+  width: 2ch; 
+  text-align: center;
+}
+
+.timer-labels {
+  font-size: 1rem; 
+  font-weight: 600;
+  color: #202020; 
+  margin-top: -15px;
+}
+
+.timer-separator {
+  font-size: 3rem; 
+  font-weight: 500;
+  font-family: 'Courier New', Courier, monospace; /* Match font for separators */
+  color: #363636;
+  margin-top: -10px; 
+}
+
+@media (max-width: 1024px) {
+  .timer-text {
+    font-size: 2.25rem; 
+  }
+
+  .timer-labels {
+    font-size: 0.8rem; 
+    margin-top: -10px;
+  }
+
+  .timer-separator {
+    font-size: 2.25rem; 
+  }
+}
