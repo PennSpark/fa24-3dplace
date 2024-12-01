@@ -5,12 +5,13 @@ import {
   CAM_MIN_DISTANCE,
   START_COORDS,
 } from "../helpers/Constants";
+import { CustomControls } from "./CustomControls";
 
 export function createControls(
   camera: THREE.PerspectiveCamera,
   renderer: THREE.Renderer
 ) {
-  const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new CustomControls(camera, renderer.domElement);
 
   // set initial position of the camera
   camera.position.set(START_COORDS.x, START_COORDS.y, START_COORDS.z);
