@@ -44,9 +44,10 @@ export function createScene(
   );
 
   // Make the grid lines less intense by reducing opacity
-  const gridMaterial = grid.material as THREE.Material;
+  const gridMaterial = grid.material as THREE.LineBasicMaterial;
   gridMaterial.opacity = 0.5; // Adjust for transparency
   gridMaterial.transparent = true;
+  gridMaterial.depthWrite = false;
   scene.add(grid);
 
   // --- voxel block mesh ---

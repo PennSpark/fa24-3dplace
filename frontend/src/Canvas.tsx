@@ -216,11 +216,11 @@ function Canvas(props: { username: string }) {
       50,
       window.innerWidth / window.innerHeight,
       0.1,
-      10000
+      8000
     );
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current!,
-      // antialias: true,
+      antialias: true,
       // alpha: true,
     });
 
