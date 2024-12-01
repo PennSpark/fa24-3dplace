@@ -220,8 +220,8 @@ function Canvas(props: { username: string }) {
     );
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current!,
-      antialias: true,
-      alpha: true,
+      // antialias: true,
+      // alpha: true,
     });
 
     // scene config
