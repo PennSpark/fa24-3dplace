@@ -53,7 +53,7 @@ function WelcomeScreen({ onSubmit }: any) {
         </button>
       </form>
 
-      <CountdownTimer />
+      {/* <CountdownTimer /> */}
     </div>
   );
 }
