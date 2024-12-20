@@ -35,7 +35,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
   // state variables --> shared globally with application --> be careful of triggering rerenders w/ useState
   // voxel color --> can be defined heree, but changed based on user click in colorpallete.tsx
   // and then ref.current value passed to canvas.tsx
-  const currColorRef = useRef<string>("#000000");
+  const currColorRef = useRef<string>("#1E1E1E");
   const setCurrColor = (color: string) => {
     currColorRef.current = color; // update the ref value
   };
@@ -80,7 +80,7 @@ export const StateControllerProvider: React.FC<{ children: ReactNode }> = ({
     "#FFA4D1",
     "#D4852A",
     "#63300F",
-    "#000000",
+    "#1E1E1E",
     "#888888",
     "#E0E0E0",
     "transparent",
