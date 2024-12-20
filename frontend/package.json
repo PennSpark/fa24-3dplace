@@ -21,7 +21,6 @@
     "react-transition-group": "^4.4.5",
     "react-use-websocket": "^4.10.1",
     "three": "^0.169.0",
-    "three-orbitcontrols-ts": "^0.1.2",
     "three-viewport-gizmo": "^0.1.5",
     "three-vignette-background": "^1.0.3"
   },
