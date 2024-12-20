@@ -20,15 +20,18 @@ The project combines the interactive nature of 3D art with Penn's campus culture
 
 ## **Results**  
 
-- **User Engagement Metrics:** 370 unique users w/ 850+ page views 
+### **User Engagement Metrics:** **370 unique users** with **850+ page views**
 
-- **Timelapse Video:** [to be updated]  
+### **Timelapse Video:**  
+  *[To be updated]*
 
-- **Total Blocks Placed:** 32,905
+### **Total Blocks Placed:**  **32,905**
 
-- **Highlights:** 
+### **Highlights:**
 
-- **Flyover Video:** 
+![image](https://github.com/user-attachments/assets/a7dda601-2fc7-4b13-babc-b6230e8e9232)
+
+### **Demo Video:** 
 
 ---
 
