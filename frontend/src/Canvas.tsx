@@ -38,8 +38,7 @@ function Canvas(props: { username: string }) {
   } = useStateController();
 
   //! backend endpoint
-  const WEB_SOCKET_URL =
-    import.meta.env.VITE_WEB_SOCKET_URL || "ws://127.0.0.1:8000";
+  const WEB_SOCKET_URL = "ws://127.0.0.1:8000";
 
   // access canvas element from DOM with useRef -> won't trigger rerender when canvasRef changes
   const canvasRef = useRef<HTMLCanvasElement>(null);

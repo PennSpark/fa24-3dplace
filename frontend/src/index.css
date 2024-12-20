@@ -34,12 +34,10 @@ body {
 }
 
 canvas {
-  display: block; 
+  display: block;
   width: 100vw;
   height: 100vh;
 }
-
-
 
 h1 {
   font-size: 3.2em;
@@ -58,7 +56,8 @@ button {
   transition: border-color 0.25s;
 }
 
-button:hover, .color-option:hover{
+button:hover,
+.color-option:hover {
   box-shadow: 2px 2px 8px #0d275059, -3px -3px 7px #ffffff;
 }
 button:active {
