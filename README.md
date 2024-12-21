@@ -48,7 +48,8 @@ Key features included:
 - **Mode Slider:** To toggle between building and moving.  
 - **Quick Guide:** Simple onboarding for first-time users.  
 - **Color Palette:** Easy color selection for voxel placement.  
-- **Feedback Button:** To collect user suggestions.  
+- **Feedback Button:** To collect user suggestions.
+- **Rate Limiting:** Prevent spam placing/deleting by tracking CPS.
 
 ### **Device Optimization**  
 We prioritized usability based on the expected interaction devices:  
