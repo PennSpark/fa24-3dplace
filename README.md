@@ -23,7 +23,8 @@ The project combines the interactive nature of 3D art with Penn's campus culture
 ### **User Engagement Metrics:** **370 unique users** with **850+ page views**
 
 ### **Timelapse Video:**  
-  *[To be updated]*
+
+[![timelapse video](https://img.youtube.com/vi/MGF-M5Sa_6Q/0.jpg)](https://www.youtube.com/watch?v=MGF-M5Sa_6Q)
 
 ### **Total Blocks Placed:**  **32,905**
 
@@ -32,6 +33,8 @@ The project combines the interactive nature of 3D art with Penn's campus culture
 ![image](https://github.com/user-attachments/assets/a7dda601-2fc7-4b13-babc-b6230e8e9232)
 
 ### **Demo Video:** 
+
+[![demo video](https://img.youtube.com/vi/wXLZzfUHTiA/0.jpg)](https://www.youtube.com/watch?v=wXLZzfUHTiA)
 
 ---
 
@@ -99,8 +102,6 @@ Though hosted on a single server, the architecture supports future expansion to 
 
 ---
 
-## **Conclusion**  
 
-Penn Place successfully explored a 3D digital art experience with real-time collaboration. It was exciting seeing how users shaped the canvas overtime and seeing popular.. type later
 
 
